@@ -1,9 +1,15 @@
 [project]
-name = "audio"
+name = "audio-transcription"
 version = "2.0.0"
-description = "Aplicación de transcripción de audio con Whisper AI"
+description = "Automatizated system for audio trancription based on Whisper AI"
 readme = "README.md"
 requires-python = ">=3.14"
+license = {text = "MIT"}
+authors = [
+    {name = "Javier", email = "javisanmayoral@gmail.com"}
+]
+keywords = ["whisper", "audio", "transcription", "automation", "signal-processing"]
+
 dependencies = [
     "numpy>=2.3.5",
     "openai-whisper>=20250625",
@@ -12,3 +18,37 @@ dependencies = [
     "sounddevice>=0.5.3",
     "soundfile>=0.13.1",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.3.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",   # Errores de pycodestyle
+    "F",   # Errores de Pyflakes
+    "I",   # Isort (ordenar imports)
+    "D",   # Docstrings
+    "UP",  # Upgrade (sugiere sintaxis moderna de Python)
+    "B",   # Bugbear (errores lógicos comunes)
+    "SIM", # Simplificación de código
+]
+ignore = ["D203", "D213"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["audio"]
+lines-after-imports = 2
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+preview = true
+
+[project.scripts]
+transcribir = "audio.main:run_app" # Permite ejecutar el proyecto con el comando 'transcribir'

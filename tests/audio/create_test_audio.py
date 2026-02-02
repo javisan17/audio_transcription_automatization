@@ -1,3 +1,5 @@
+"""Script para crear un archivo de audio de prueba simple."""
+
 import numpy as np
 import soundfile as sf
 

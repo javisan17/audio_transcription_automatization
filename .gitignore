@@ -5,6 +5,8 @@ build/
 dist/
 wheels/
 *.egg-info
+
+# Uv files
 .python-version
 uv.lock
 *.spec
@@ -14,3 +16,6 @@ uv.lock
 
 # Información
 docs/
+
+# Ruff files
+.ruff-cache/
