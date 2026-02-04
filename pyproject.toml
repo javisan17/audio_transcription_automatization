@@ -21,7 +21,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.3.0",
+    "pytest>=9.0.2",
+    "ruff>=0.14.14",
 ]
 
 [tool.ruff]
@@ -52,3 +53,8 @@ preview = true
 
 [project.scripts]
 transcribir = "audio.main:run_app" # Permite ejecutar el proyecto con el comando 'transcribir'
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: marcar pruebas de integración (ejecutar con INTEGRATION_TESTS=1)",
+]

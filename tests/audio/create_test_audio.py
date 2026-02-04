@@ -14,4 +14,4 @@ audio = 0.3 * np.sin(2 * np.pi * 440 * t)
 
 # Guardar
 sf.write("test_audio.wav", audio, sample_rate)
-print("✅ Archivo de prueba creado: test_audio.wav")
+print("Archivo de prueba creado: test_audio.wav")

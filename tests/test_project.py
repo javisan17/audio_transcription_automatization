@@ -4,126 +4,84 @@ import os
 import sys
 
 
-# Agregar src al path (padre del padre)
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 
 def test_imports():
     """Prueba que todos los módulos se importan correctamente."""
-    print("=" * 60)
-    print("TEST 1: Verificar importaciones")
-    print("=" * 60)
-    try:
-        print("✅ Todos los módulos importados correctamente")
-        return True
-
-    except Exception as e:
-        print(f"❌ Error al importar: {e}")
-        return False
+    # Verificar importaciones básicas sin excepciones
 
 
-def test_loader():
-    """Prueba el cargador de audio."""
-    print("\n" + "=" * 60)
-    print("TEST 2: Prueba del cargador de audio")
-    print("=" * 60)
-    try:
-        from audio import load_audio
+def test_loader(tmp_path):
+    """Prueba el cargador de audio con un archivo WAV temporal."""
+    # Crear un pequeño WAV de prueba
+    import numpy as np
+    import soundfile as sf
 
-        # Usar el archivo de prueba creado
-        audio_path = "audio/test_audio.wav"
-        if not os.path.exists(audio_path):
-            print(f"⚠️  Archivo de prueba no encontrado: {audio_path}")
-            return False
+    from audio import load_audio
 
-        result = load_audio(audio_path)
-        print(f"✅ Audio cargado y preparado: {result}")
-        print(f"   Archivo existe: {os.path.exists(result)}")
-        return True
+    wav_path = tmp_path / "test.wav"
+    data = 0.1 * np.sin(2 * np.pi * 440 * np.linspace(0, 0.1, 1600))
+    sf.write(str(wav_path), data, 16000)
 
-    except Exception as e:
-        print(f"❌ Error al cargar audio: {e}")
-        return False
+    result = load_audio(str(wav_path))
+    assert os.path.exists(result)
 
 
-def test_output_clipboard():
-    """Prueba guardado en portapapeles."""
-    print("\n" + "=" * 60)
-    print("TEST 3: Prueba de portapapeles")
-    print("=" * 60)
-    try:
-        from output import copy_to_clipboard
+def test_output_clipboard(monkeypatch):
+    """Prueba guardado en portapapeles usando un mock."""
+    copied = {}
 
-        texto_prueba = "Esto es una prueba de portapapeles"
-        copy_to_clipboard(texto_prueba)
-        print(f"✅ Texto copiado al portapapeles: '{texto_prueba}'")
-        return True
+    def fake_copy(text):
+        copied["text"] = text
 
-    except Exception as e:
-        print(f"❌ Error al copiar al portapapeles: {e}")
-        return False
+    monkeypatch.setattr("pyperclip.copy", fake_copy)
+
+    from output import copy_to_clipboard
+
+    texto_prueba = "Esto es una prueba de portapapeles"
+    copy_to_clipboard(texto_prueba)
+    assert copied.get("text") == texto_prueba
 
 
-def test_output_file():
+def test_output_file(tmp_path):
     """Prueba guardado en archivo."""
-    print("\n" + "=" * 60)
-    print("TEST 4: Prueba de guardado en archivo")
-    print("=" * 60)
-    try:
-        from output import save_to_txt
+    from output import save_to_txt
 
-        texto_prueba = "Esto es una prueba de archivo\nCon múltiples líneas"
-        archivo_prueba = "output/test_output.txt"
-        save_to_txt(texto_prueba, archivo_prueba)
+    texto_prueba = """Esto es una prueba de archivo
+        Con múltiples líneas
+        """
+    archivo_prueba = tmp_path / "test_output.txt"
+    save_to_txt(texto_prueba, str(archivo_prueba))
 
-        # Verificar que se creó el archivo
-        if os.path.exists(archivo_prueba):
-            with open(archivo_prueba, encoding="utf-8") as f:
-                contenido = f.read()
-            print(f"✅ Archivo guardado correctamente: {archivo_prueba}")
-            print(f"   Contenido: {contenido[:50]}...")
-            return True
-        else:
-            print(f"❌ Archivo no se creó: {archivo_prueba}")
-            return False
-
-    except Exception as e:
-        print(f"❌ Error al guardar archivo: {e}")
-        return False
+    assert archivo_prueba.exists()
+    contenido = archivo_prueba.read_text(encoding="utf-8")
+    assert "Esto es una prueba de archivo" in contenido
 
 
-def test_transcriber():
-    """Prueba de transcripción (requiere tiempo)."""
-    print("\n" + "=" * 60)
-    print("TEST 5: Prueba de transcripción")
-    print("=" * 60)
-    try:
-        from audio import load_audio
-        from transcription import transcribe_audio
+def test_transcriber(monkeypatch, tmp_path):
+    """Prueba de transcripción con un modelo mockeado."""
+    import numpy as np
 
-        audio_path = "audio/test_audio.wav"
-        if not os.path.exists(audio_path):
-            print(f"⚠️  Archivo de prueba no encontrado: {audio_path}")
-            return False
+    # Crear archivo de audio temporal
+    import soundfile as sf
 
-        # Cargar audio
-        audio_preparado = load_audio(audio_path)
+    wav_path = tmp_path / "test_trans.wav"
+    data = 0.1 * np.sin(2 * np.pi * 440 * np.linspace(0, 0.1, 1600))
+    sf.write(str(wav_path), data, 16000)
 
-        # Transcribir (esto puede tardar unos minutos la primera vez)
-        print("Transcribiendo... (esto puede tardar unos minutos)")
-        texto = transcribe_audio(audio_preparado)
+    # Mockear whisper.load_model y su método transcribe
+    class FakeModel:
+        def transcribe(self, audio, language="es", verbose=False):
+            return {"text": "hola mundo"}
 
-        if texto is None:
-            print("❌ La transcripción retornó None")
-            return False
+    monkeypatch.setattr("whisper.load_model", lambda model: FakeModel())
 
-        print("✅ Transcripción completada")
-        print(f"   Texto: '{texto}' (puede estar vacío si era solo un tono)")
-        return True
+    from transcription import transcribe_audio
 
-    except Exception as e:
-        print(f"❌ Error en transcripción: {e}")
-        return False
+    texto = transcribe_audio(str(wav_path))
+    assert texto is not None
+    assert "hola" in texto
 
 
 def main():
