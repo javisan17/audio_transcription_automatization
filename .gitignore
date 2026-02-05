@@ -16,6 +16,11 @@ uv.lock
 
 # Información
 docs/
+tools/
+logs/
 
 # Ruff files
 .ruff-cache/
+
+# Pytest files
+.pytest_cache/

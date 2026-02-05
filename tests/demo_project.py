@@ -11,91 +11,92 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from audio import load_audio
+from logger import get_logger
 from output import copy_to_clipboard, save_to_txt
 from transcription import transcribe_audio
 
 
-print("\n" + "=" * 70)
-print("DEMOSTRACIÓN DEL PROYECTO - AUTOMATIZACIÓN DE AUDIO")
-print("=" * 70)
+logger = get_logger(__name__)
+logger.info("\n" + "=" * 70)
+logger.info("DEMOSTRACIÓN DEL PROYECTO - AUTOMATIZACIÓN DE AUDIO")
+logger.info("=" * 70)
 
 # OPCIÓN 1: Transcribir archivo
-print("\n" + "-" * 70)
-print("OPCIÓN 1: TRANSCRIBIR ARCHIVO DE AUDIO")
-print("-" * 70)
+logger.info("\n" + "-" * 70)
+logger.info("OPCIÓN 1: TRANSCRIBIR ARCHIVO DE AUDIO")
+logger.info("-" * 70)
 
 try:
-    print("✓ Detectando archivo de audio...")
+    logger.info("✓ Detectando archivo de audio...")
     audio_path = "audio/test_audio.wav"
 
     if os.path.exists(audio_path):
-        print(f"✓ Archivo encontrado: {audio_path}")
+        logger.info(f"✓ Archivo encontrado: {audio_path}")
 
-        print("✓ Cargando y preparando audio...")
+        logger.info("✓ Cargando y preparando audio...")
         audio_preparado = load_audio(audio_path)
-        print("✓ Audio preparado para transcripción")
+        logger.info("✓ Audio preparado para transcripción")
 
-        print("✓ Iniciando transcripción...")
-        print(
+        logger.info("✓ Iniciando transcripción...")
+        logger.info(
             "  (Descargando modelo Whisper - esto puede tardar en la primera ejecución)"
         )
         texto = transcribe_audio(audio_preparado)
 
         if texto:
-            print("✓ Transcripción completada")
-            print(f"  Texto: '{texto}'")
+            logger.info("✓ Transcripción completada")
+            logger.info(f"  Texto: '{texto}'")
 
             # Simular opción de guardado
-            print("\n✓ Guardando transcripción en archivo...")
+            logger.info("\n✓ Guardando transcripción en archivo...")
             save_to_txt(texto, "output/transcripcion_resultado.txt")
-            print("✓ Archivo guardado: transcripcion_resultado.txt")
+            logger.info("✓ Archivo guardado: transcripcion_resultado.txt")
 
-            print("\n✓ Copiando texto al portapapeles...")
+            logger.info("\n✓ Copiando texto al portapapeles...")
             copy_to_clipboard(texto)
-            print("✓ Texto disponible en portapapeles")
+            logger.info("✓ Texto disponible en portapapeles")
 
         else:
-            print("⚠ No se pudo obtener transcripción")
+            logger.warning("⚠ No se pudo obtener transcripción")
 
     else:
-        print(f"⚠ No se encontró archivo: {audio_path}")
+        logger.warning(f"⚠ No se encontró archivo: {audio_path}")
 
 except Exception as e:
-    print(f"❌ Error en Opción 1: {e}")
+    logger.error(f"❌ Error en Opción 1: {e}")
 
 # OPCIÓN 2: Simular grabación (sin grabar realmente)
-print("\n" + "-" * 70)
-print("OPCIÓN 2: GRABAR Y TRANSCRIBIR (DEMOSTRACIÓN)")
-print("-" * 70)
+logger.info("\n" + "-" * 70)
+logger.info("OPCIÓN 2: GRABAR Y TRANSCRIBIR (DEMOSTRACIÓN)")
+logger.info("-" * 70)
 
 try:
-    print("✓ Módulo de grabación disponible")
-    print("✓ Módulo de transcripción disponible")
-    print("✓ Módulos de salida disponibles")
+    logger.info("✓ Módulo de grabación disponible")
+    logger.info("✓ Módulo de transcripción disponible")
+    logger.info("✓ Módulos de salida disponibles")
 
-    print("\nPara probar la grabación real:")
-    print("  1. Ejecuta: python src/main.py")
-    print("  2. Selecciona opción 2")
-    print("  3. Especifica duración de grabación")
-    print("  4. Habla durante la grabación")
-    print("  5. El audio se transcribirá automáticamente")
+    logger.info("\nPara probar la grabación real:")
+    logger.info("  1. Ejecuta: python src/main.py")
+    logger.info("  2. Selecciona opción 2")
+    logger.info("  3. Especifica duración de grabación")
+    logger.info("  4. Habla durante la grabación")
+    logger.info("  5. El audio se transcribirá automáticamente")
 
 except Exception as e:
-    print(f"❌ Error en Opción 2: {e}")
+    logger.error(f"❌ Error en Opción 2: {e}")
 
 # Resumen final
-print("\n" + "=" * 70)
-print("RESUMEN DE PRUEBAS")
-print("=" * 70)
-print("✅ Carga de archivos de audio: OK")
-print("✅ Transcripción con Whisper: OK")
-print("✅ Guardado en archivos: OK")
-print("✅ Copia al portapapeles: OK")
-print("✅ Estructura del proyecto: OK")
-print("\n" + "=" * 70)
-print("🎉 El proyecto está listo para usar")
-print("=" * 70)
-print("\nPróximos pasos:")
-print("  1. Ejecuta: python src/main.py")
-print("  2. O compila a .exe: python build_exe.py")
-print()
+logger.info("\n" + "=" * 70)
+logger.info("RESUMEN DE PRUEBAS")
+logger.info("=" * 70)
+logger.info("✅ Carga de archivos de audio: OK")
+logger.info("✅ Transcripción con Whisper: OK")
+logger.info("✅ Guardado en archivos: OK")
+logger.info("✅ Copia al portapapeles: OK")
+logger.info("✅ Estructura del proyecto: OK")
+logger.info("\n" + "=" * 70)
+logger.info("🎉 El proyecto está listo para usar")
+logger.info("=" * 70)
+logger.info("\nPróximos pasos:")
+logger.info("  1. Ejecuta: python src/main.py")
+logger.info("  2. O compila a .exe: python build_exe.py")

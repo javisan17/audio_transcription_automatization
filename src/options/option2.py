@@ -3,13 +3,17 @@
 """Módulo para la gestión de la opción 2 (transcripción en tiempo real)."""
 
 from audio import record_audio
+from logger import get_logger
 from output import copy_to_clipboard, save_to_txt
 from transcription import transcribe_audio
 
 
+logger = get_logger(__name__)
+
+
 def opcion_2_grabar_y_transcribir():
     """Graba audio en tiempo real y lo transcribe."""
-    print("\n=== OPCIÓN 2: Grabar y Transcribir ===")
+    logger.info("\n=== OPCIÓN 2: Grabar y Transcribir ===")
 
     # Pedir duración
     try:
@@ -18,23 +22,23 @@ def opcion_2_grabar_y_transcribir():
         )
 
     except ValueError:
-        print("Debes ingresar un número válido.")
+        logger.warning("Debes ingresar un número válido.")
         return
 
     # Grabar
     audio_grabado = record_audio(duration=duracion)
     if not audio_grabado:
-        print("Error en la grabación.")
+        logger.error("Error en la grabación.")
         return
 
     # Transcribir
     texto = transcribe_audio(audio_grabado)
     if not texto:
-        print("Error en la transcripción.")
+        logger.error("Error en la transcripción.")
         return
 
     # Mostrar texto
-    print(f"\nTexto transcrito:\n{texto}\n")
+    logger.info(f"\nTexto transcrito:\n{texto}\n")
 
     # Preguntar dónde guardar
     opcion_salida = input(
@@ -43,7 +47,7 @@ def opcion_2_grabar_y_transcribir():
 
     if opcion_salida == "1":
         copy_to_clipboard(texto)
-        print("Texto copiado al portapapeles.")
+        logger.info("Texto copiado al portapapeles.")
 
     elif opcion_salida == "2":
         nombre_archivo = input(
@@ -51,7 +55,7 @@ def opcion_2_grabar_y_transcribir():
         ).strip()
         nombre_archivo = nombre_archivo or "transcripcion.txt"
         save_to_txt(texto, nombre_archivo)
-        print(f"Texto guardado en {nombre_archivo}")
+        logger.info(f"Texto guardado en {nombre_archivo}")
         
     else:
-        print("Opción no válida.")
+        logger.warning("Opción no válida.")

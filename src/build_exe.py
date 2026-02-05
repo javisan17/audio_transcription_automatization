@@ -12,13 +12,17 @@ import subprocess
 import sys
 from pathlib import Path
 
+from logger import setup_logging, get_logger
+setup_logging()
+logger = get_logger(__name__)
+
 
 def main():
     """Compila la aplicación a un ejecutable .exe usando PyInstaller."""
     # Verificar que se ejecuta en Windows
     if platform.system() != "Windows":
-        print("ERROR: Este script solo funciona en Windows")
-        print(f"   Sistema detectado: {platform.system()}")
+        logger.error("ERROR: Este script solo funciona en Windows")
+        logger.info(f"   Sistema detectado: {platform.system()}")
         return 1
 
     # Compilar por consola por defecto (modo CLI). Pasar --windowed para ventana.
@@ -28,20 +32,20 @@ def main():
 
     root_dir = Path(__file__).parent
 
-    print("=" * 60)
-    print("COMPILANDO EJECUTABLE - TRANSCRIPCIÓN DE AUDIO")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("COMPILANDO EJECUTABLE - TRANSCRIPCIÓN DE AUDIO")
+    logger.info("=" * 60)
 
     # Limpiar compilaciones anteriores
-    print("\n[1/2] Limpiando compilaciones anteriores...")
+    logger.info("\n[1/2] Limpiando compilaciones anteriores...")
     for folder in [root_dir / "dist", root_dir / "build", root_dir / "__pycache__"]:
         if folder.exists():
             shutil.rmtree(folder)
-            print(f"   Eliminado {folder.name}")
+            logger.info(f"   Eliminado {folder.name}")
 
     # Compilar con PyInstaller
-    print("\n[2/2] Compilando con PyInstaller...")
-    print("    (Esto puede tomar varios minutos)\n")
+    logger.info("\n[2/2] Compilando con PyInstaller...")
+    logger.info("    (Esto puede tomar varios minutos)\n")
 
     cmd = [
         sys.executable,
@@ -71,7 +75,8 @@ def main():
     else:
         cmd.append("--windowed")
 
-    cmd.append("src/gui/gui_app.py")
+    # Usar ruta absoluta al script GUI (root_dir ya apunta a src)
+    cmd.append(str(root_dir / "gui" / "gui_app.py"))
 
     result = subprocess.run(cmd, cwd=root_dir)
 
@@ -79,14 +84,14 @@ def main():
         exe_path = root_dir / "dist" / "AutoTranscriberAudio.exe"
         if exe_path.exists():
             size_mb = exe_path.stat().st_size / (1024 * 1024)
-            print("\n" + "=" * 60)
-            print(f"ÉXITO: {exe_path.name} creado")
-            print(f"   Tamaño: {size_mb:.1f} MB")
-            print(f"   Ubicación: {exe_path}")
-            print("=" * 60)
+            logger.info("\n" + "=" * 60)
+            logger.info(f"ÉXITO: {exe_path.name} creado")
+            logger.info(f"   Tamaño: {size_mb:.1f} MB")
+            logger.info(f"   Ubicación: {exe_path}")
+            logger.info("=" * 60)
             return 0
 
-    print("\nError en la compilación")
+    logger.error("\nError en la compilación")
     return 1
 
 

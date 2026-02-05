@@ -9,6 +9,11 @@ import numpy as np
 import sounddevice as sd
 import soundfile as sf
 
+from logger import get_logger
+
+
+logger = get_logger(__name__)
+
 
 class AudioRecorder:
     """Grabador de audio con control de inicio/parada."""
@@ -28,7 +33,9 @@ class AudioRecorder:
         self.is_recording = True
         self.audio_data = []
 
-        print("Iniciando grabación... (presiona STOP en la GUI para detener)")
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info("Iniciando grabación... (presiona STOP en la GUI para detener)")
 
         # Iniciar grabación en un hilo separado
         self.thread = threading.Thread(target=self._record_stream, daemon=True)
@@ -44,7 +51,7 @@ class AudioRecorder:
             ]
 
             if not input_devices:
-                print("No se encontraron dispositivos de entrada de audio.")
+                logger.warning("No se encontraron dispositivos de entrada de audio.")
                 self.is_recording = False
                 return
 
@@ -53,7 +60,7 @@ class AudioRecorder:
             # Usar stream para grabación continua
             def audio_callback(indata, frames, time, status):
                 if status:
-                    print(f"Estado del stream: {status}")
+                    logger.debug(f"Estado del stream: {status}")
                 # Copiar datos de audio
                 self.audio_data.append(indata.copy())
 
@@ -70,7 +77,7 @@ class AudioRecorder:
                     sd.sleep(100)  # Pequeña pausa para no consumir CPU
 
         except Exception as e:
-            print(f"Error durante la grabación: {e}")
+            logger.exception(f"Error durante la grabación: {e}")
             self.is_recording = False
 
     def stop_recording(self) -> str:
@@ -84,10 +91,10 @@ class AudioRecorder:
         if self.thread:
             self.thread.join(timeout=2)
 
-        print("Grabación detenida")
+        logger.info("Grabación detenida")
 
         if not self.audio_data:
-            print("No se grabó audio")
+            logger.warning("No se grabó audio")
             return None
 
         # Concatenar todos los bloques de audio
@@ -106,7 +113,7 @@ class AudioRecorder:
             temp_wav = temp_file.name
         sf.write(temp_wav, audio_array, self.sample_rate)
 
-        print(f"Audio guardado: {temp_wav}")
+        logger.info(f"Audio guardado: {temp_wav}")
         return temp_wav
 
 
@@ -129,7 +136,7 @@ def record_audio(duration: int = 30, sample_rate: int = 16000) -> str:
 
     Graba audio durante un tiempo específico.
     """
-    print(f"Grabando durante {duration} segundos...")
+    logger.info(f"Grabando durante {duration} segundos...")
 
     try:
         # Verificar dispositivos disponibles
@@ -165,13 +172,13 @@ def record_audio(duration: int = 30, sample_rate: int = 16000) -> str:
             temp_wav = temp_file.name
         sf.write(temp_wav, audio_data, sample_rate)
 
-        print(f"Grabación completada: {temp_wav}")
+        logger.info(f"Grabación completada: {temp_wav}")
         return temp_wav
 
     except KeyboardInterrupt:
-        print("\nGrabación cancelada.")
+        logger.info("\nGrabación cancelada.")
         return None
 
     except Exception as e:
-        print(f"Error al grabar: {e}")
+        logger.error(f"Error al grabar: {e}")
         return None

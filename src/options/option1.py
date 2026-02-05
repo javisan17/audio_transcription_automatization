@@ -5,17 +5,21 @@
 import os
 
 from audio import load_audio
+from logger import get_logger
 from output import copy_to_clipboard, save_to_txt
 from transcription import transcribe_audio
 
 
+logger = get_logger(__name__)
+
+
 def opcion_1_transcribir_archivo():
     """Transcribe un archivo de audio existente."""
-    print("\n=== OPCIÓN 1: Transcribir Archivo ===")
+    logger.info("\n=== OPCIÓN 1: Transcribir Archivo ===")
     archivo = input("Ingresa la ruta al archivo de audio: ").strip()
 
     if not os.path.isfile(archivo):
-        print("El archivo no existe.")
+        logger.warning("El archivo no existe.")
         return
 
     # Cargar y preparar audio
@@ -24,11 +28,11 @@ def opcion_1_transcribir_archivo():
     # Transcribir
     texto = transcribe_audio(audio_preparado)
     if not texto:
-        print("Error en la transcripción.")
+        logger.error("Error en la transcripción.")
         return
 
     # Mostrar texto
-    print(f"\nTexto transcrito:\n{texto}\n")
+    logger.info(f"\nTexto transcrito:\n{texto}\n")
 
     # Preguntar dónde guardar
     opcion_salida = input(
@@ -37,7 +41,7 @@ def opcion_1_transcribir_archivo():
 
     if opcion_salida == "1":
         copy_to_clipboard(texto)
-        print("Texto copiado al portapapeles.")
+        logger.info("Texto copiado al portapapeles.")
 
     elif opcion_salida == "2":
         nombre_archivo = input(
@@ -45,7 +49,7 @@ def opcion_1_transcribir_archivo():
         ).strip()
         nombre_archivo = nombre_archivo or "transcripcion.txt"
         save_to_txt(texto, nombre_archivo)
-        print(f"Texto guardado en {nombre_archivo}")
+        logger.info(f"Texto guardado en {nombre_archivo}")
         
     else:
-        print("Opción no válida.")
+        logger.warning("Opción no válida.")

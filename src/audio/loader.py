@@ -9,6 +9,10 @@ import sys
 import tempfile
 from contextlib import suppress
 
+from logger import get_logger
+
+
+logger = get_logger(__name__)
 
 SUPPORTED_EXTENSIONS = (".wav", ".mp3", ".m4a", ".flac", ".ogg", ".mp4")
 
@@ -65,8 +69,8 @@ def convert_mp4_to_wav(mp4_path: str) -> str:
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
             temp_wav = temp_file.name
 
-        print(f"Convirtiendo MP4 a WAV: {mp4_path}")
-        print(f"Archivo temporal: {temp_wav}")
+        logger.info(f"Convirtiendo MP4 a WAV: {mp4_path}")
+        logger.debug(f"Archivo temporal: {temp_wav}")
 
         # Verificar si FFmpeg está disponible
         ffmpeg_path = get_ffmpeg_path()
@@ -98,7 +102,7 @@ def convert_mp4_to_wav(mp4_path: str) -> str:
             temp_wav,
         ]
 
-        print(f"Ejecutando: {' '.join(cmd)}")
+        logger.debug(f"Ejecutando: {' '.join(cmd)}")
 
         # Ejecutar FFmpeg
         result = subprocess.run(
@@ -127,7 +131,7 @@ def convert_mp4_to_wav(mp4_path: str) -> str:
         if file_size == 0:
             raise RuntimeError("El archivo WAV está vacío (0 bytes)")
 
-        print(f"Conversión completada: {temp_wav} ({file_size} bytes)")
+        logger.info(f"Conversión completada: {temp_wav} ({file_size} bytes)")
         return temp_wav
 
     except Exception as e:
@@ -157,7 +161,7 @@ def load_audio(audio_path: str) -> str:
 
     # Si es MP4, convertir a WAV
     if ext == ".mp4":
-        print("Archivo MP4 detectado, convirtiendo a WAV...")
+        logger.info("Archivo MP4 detectado, convirtiendo a WAV...")
         return convert_mp4_to_wav(audio_path)
 
     return audio_path

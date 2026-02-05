@@ -1,5 +1,7 @@
 """Script para crear un archivo de audio de prueba simple."""
 
+import logging
+
 import numpy as np
 import soundfile as sf
 
@@ -14,4 +16,7 @@ audio = 0.3 * np.sin(2 * np.pi * 440 * t)
 
 # Guardar
 sf.write("test_audio.wav", audio, sample_rate)
-print("Archivo de prueba creado: test_audio.wav")
+
+
+logger = logging.getLogger(__name__)
+logger.info("Archivo de prueba creado: test_audio.wav")

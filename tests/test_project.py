@@ -86,10 +86,12 @@ def test_transcriber(monkeypatch, tmp_path):
 
 def main():
     """Función principal para ejecutar todas las pruebas."""
-    print("\n")
-    print("╔" + "=" * 58 + "╗")
-    print("║" + " PRUEBAS DEL PROYECTO DE AUTOMATIZACIÓN DE AUDIO ".center(58) + "║")
-    print("╚" + "=" * 58 + "╝")
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info("\n")
+    logger.info("╔" + "=" * 58 + "╗")
+    logger.info("║" + " PRUEBAS DEL PROYECTO DE AUTOMATIZACIÓN DE AUDIO ".center(58) + "║")
+    logger.info("╚" + "=" * 58 + "╝")
 
     results = []
 
@@ -101,23 +103,23 @@ def main():
     results.append(("Transcripción", test_transcriber()))
 
     # Resumen
-    print("\n" + "=" * 60)
-    print("RESUMEN DE PRUEBAS")
-    print("=" * 60)
+    logger.info("\n" + "=" * 60)
+    logger.info("RESUMEN DE PRUEBAS")
+    logger.info("=" * 60)
 
     for nombre, resultado in results:
         estado = "✅ PASÓ" if resultado else "❌ FALLÓ"
-        print(f"{nombre:<30} {estado}")
+        logger.info(f"{nombre:<30} {estado}")
 
     passed = sum(1 for _, r in results if r)
     total = len(results)
 
-    print(f"\nTotal: {passed}/{total} pruebas pasadas")
+    logger.info(f"\nTotal: {passed}/{total} pruebas pasadas")
 
     if passed == total:
-        print("\n🎉 ¡TODAS LAS PRUEBAS PASARON!")
+        logger.info("\n🎉 ¡TODAS LAS PRUEBAS PASARON!")
     else:
-        print(f"\n⚠️  {total - passed} prueba(s) fallaron")
+        logger.warning(f"\n⚠️  {total - passed} prueba(s) fallaron")
 
 
 if __name__ == "__main__":

@@ -1,19 +1,25 @@
 """Módulo principal para la automatización de audio."""
 
+from logger import get_logger, setup_logging
+
+
+setup_logging()
+logger = get_logger(__name__)
+
 from options import opcion_1_transcribir_archivo, opcion_2_grabar_y_transcribir
 
 
 def main():
     """Función principal del programa de automatización de audio."""
-    print("=" * 50)
-    print("AUTOMATIZACIÓN DE AUDIO - TRANSCRIPCIÓN")
-    print("=" * 50)
+    logger.info("=" * 50)
+    logger.info("AUTOMATIZACIÓN DE AUDIO - TRANSCRIPCIÓN")
+    logger.info("=" * 50)
 
     while True:
-        print("\nElige una opción:")
-        print("1 - Transcribir un archivo de audio")
-        print("2 - Grabar audio y transcribir")
-        print("3 - Salir")
+        logger.info("\nElige una opción:")
+        logger.info("1 - Transcribir un archivo de audio")
+        logger.info("2 - Grabar audio y transcribir")
+        logger.info("3 - Salir")
 
         opcion = input("\nOpción (1/2/3): ").strip()
 
@@ -22,10 +28,10 @@ def main():
         elif opcion == "2":
             opcion_2_grabar_y_transcribir()
         elif opcion == "3":
-            print("\n¡Hasta luego!")
+            logger.info("\n¡Hasta luego!")
             break
         else:
-            print("Opción no válida. Intenta de nuevo.")
+            logger.warning("Opción no válida. Intenta de nuevo.")
 
 
 if __name__ == "__main__":

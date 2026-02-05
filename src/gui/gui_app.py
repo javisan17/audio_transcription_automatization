@@ -10,8 +10,12 @@ from tkinter import filedialog, messagebox, scrolledtext, ttk
 
 from audio import load_audio, record_audio
 from audio.recorder import AudioRecorder
+from logger import get_logger
 from output import copy_to_clipboard, save_to_txt
 from transcription import transcribe_audio
+
+
+logger = get_logger(__name__)
 
 
 # Determinar ruta base - funciona tanto en desarrollo como en ejecutable
@@ -316,10 +320,9 @@ class AudioTranscriptionGUI:
             self.result_text.delete(1.0, tk.END)
             self.result_text.insert(tk.END, error_msg)
             messagebox.showerror("Error", error_msg)
-            print(f"Error en transcripción: {e}")
-            import traceback
-
-            traceback.print_exc()
+            from logger import get_logger
+            logger = get_logger(__name__)
+            logger.error(f"Error en transcripción: {e}")
         finally:
             self.result_text.config(state="normal")
 
@@ -390,10 +393,7 @@ class AudioTranscriptionGUI:
                 self.result_text.delete(1.0, tk.END)
                 self.result_text.insert(tk.END, error_msg)
                 messagebox.showerror("Error de Transcripción", error_msg)
-                print(f"Error en transcripción: {trans_error}")
-                import traceback
-
-                traceback.print_exc()
+                logger.exception(f"Error en transcripción: {trans_error}")
 
             self.recording_status_var.set("")
 
@@ -403,10 +403,7 @@ class AudioTranscriptionGUI:
             self.result_text.delete(1.0, tk.END)
             self.result_text.insert(tk.END, error_msg)
             messagebox.showerror("Error", error_msg)
-            print(f"Error en grabación: {e}")
-            import traceback
-
-            traceback.print_exc()
+            logger.exception(f"Error en grabación: {e}")
             self.recording_status_var.set("")
         finally:
             self.is_recording = False
@@ -554,10 +551,7 @@ Tecnologías:
                 self.result_text.delete(1.0, tk.END)
                 self.result_text.insert(tk.END, error_msg)
                 messagebox.showerror("Error de Transcripción", error_msg)
-                print(f"Error en transcripción: {trans_error}")
-                import traceback
-
-                traceback.print_exc()
+                logger.exception(f"Error en transcripción: {trans_error}")
 
             self.recording_status_var.set("")
 
@@ -567,10 +561,7 @@ Tecnologías:
             self.result_text.delete(1.0, tk.END)
             self.result_text.insert(tk.END, error_msg)
             messagebox.showerror("Error", error_msg)
-            print(f"Error en grabación: {e}")
-            import traceback
-
-            traceback.print_exc()
+            logger.exception(f"Error en grabación: {e}")
             self.recording_status_var.set("")
         finally:
             self.is_recording = False
@@ -660,10 +651,7 @@ Tecnologías:
                 self.result_text.delete(1.0, tk.END)
                 self.result_text.insert(tk.END, error_msg)
                 messagebox.showerror("Error de Transcripción", error_msg)
-                print(f"Error en transcripción: {trans_error}")
-                import traceback
-
-                traceback.print_exc()
+                logger.exception(f"Error en transcripción: {trans_error}")
 
             self.recording_status_var.set("")
 
@@ -673,10 +661,7 @@ Tecnologías:
             self.result_text.delete(1.0, tk.END)
             self.result_text.insert(tk.END, error_msg)
             messagebox.showerror("Error", error_msg)
-            print(f"Error en grabación: {e}")
-            import traceback
-
-            traceback.print_exc()
+            logger.exception(f"Error en grabación: {e}")
             self.recording_status_var.set("")
         finally:
             self.result_text.config(state="normal")
