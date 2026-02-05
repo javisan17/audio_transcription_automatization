@@ -1,6 +1,6 @@
 # src/options/option2.py
 
-"""Módulo para la gestión de la opción 2 (transcripción en tiempo real)."""
+"""Module for the management of option 2 (real-time transcription)."""
 
 from audio import record_audio
 from logger import get_logger
@@ -11,51 +11,51 @@ from transcription import transcribe_audio
 logger = get_logger(__name__)
 
 
-def opcion_2_grabar_y_transcribir():
-    """Graba audio en tiempo real y lo transcribe."""
-    logger.info("\n=== OPCIÓN 2: Grabar y Transcribir ===")
+def option_2_record_and_transcribe():
+    """Record audio in real time and transcribes it."""
+    logger.info("\n=== OPTION 2: Record and Transcribe ===")
 
-    # Pedir duración
+    # Ask for duration
     try:
-        duracion = int(
-            input("¿Cuántos segundos quieres grabar? (default: 30): ").strip() or "30"
+        duration = int(
+            input("How many seconds do you want to record? (dft: 30): ").strip() or "30"
         )
 
     except ValueError:
-        logger.warning("Debes ingresar un número válido.")
+        logger.warning("You must enter a valid number.")
         return
 
-    # Grabar
-    audio_grabado = record_audio(duration=duracion)
-    if not audio_grabado:
-        logger.error("Error en la grabación.")
+    # Record
+    recorded_audio = record_audio(duration=duration)
+    if not recorded_audio:
+        logger.error("Error during recording.")
         return
 
-    # Transcribir
-    texto = transcribe_audio(audio_grabado)
-    if not texto:
-        logger.error("Error en la transcripción.")
+    # Transcribe
+    text = transcribe_audio(recorded_audio)
+    if not text:
+        logger.error("Error during transcription.")
         return
 
-    # Mostrar texto
-    logger.info(f"\nTexto transcrito:\n{texto}\n")
+    # Display text
+    logger.info(f"\nTranscribed text:\n{text}\n")
 
-    # Preguntar dónde guardar
-    opcion_salida = input(
-        "¿Dónde quieres guardar? (1=Portapapeles, 2=Archivo .txt): "
+    # Ask where to save
+    output_option = input(
+        "Where do you want to save? (1=Clipboard, 2=.txt file): "
     ).strip()
 
-    if opcion_salida == "1":
-        copy_to_clipboard(texto)
-        logger.info("Texto copiado al portapapeles.")
+    if output_option == "1":
+        copy_to_clipboard(text)
+        logger.info("Text copied to clipboard.")
 
-    elif opcion_salida == "2":
-        nombre_archivo = input(
-            "Nombre del archivo (default: transcripcion.txt): "
+    elif output_option == "2":
+        file_name = input(
+            "File name (default: transcription.txt): "
         ).strip()
-        nombre_archivo = nombre_archivo or "transcripcion.txt"
-        save_to_txt(texto, nombre_archivo)
-        logger.info(f"Texto guardado en {nombre_archivo}")
+        file_name = file_name or "transcription.txt"
+        save_to_txt(text, file_name)
+        logger.info(f"Text saved in {file_name}")
         
     else:
-        logger.warning("Opción no válida.")
+        logger.warning("Invalid option.")

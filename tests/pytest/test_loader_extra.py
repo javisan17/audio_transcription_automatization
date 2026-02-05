@@ -1,8 +1,8 @@
-""""Tests para el loader de audio."""
+""""Tests for the audio loader."""
 
 import os
 
-# Asegurar que src esté en path
+# Make sure src is in path
 import sys
 
 import pytest
@@ -14,13 +14,13 @@ from audio import loader
 
 
 def test_load_nonexistent_raises():
-    """Test que cargar un archivo inexistente lanza FileNotFoundError."""
+    """Test that loading a non-existent file throws FileNotFoundError."""
     with pytest.raises(FileNotFoundError):
         loader.load_audio('nonexistent_file.wav')
 
 
 def test_unsupported_extension(tmp_path):
-    """Test que cargar un archivo con extensión no soportada lanza ValueError."""
+    """Test that loading a file with an unsupported extension raises ValueError."""
     p = tmp_path / 'file.txt'
     p.write_text('not audio')
     with pytest.raises(ValueError):
@@ -28,15 +28,15 @@ def test_unsupported_extension(tmp_path):
 
 
 def test_convert_mp4_to_wav_uses_ffmpeg(monkeypatch, tmp_path):
-    """Test que la conversión de mp4 a wav usa ffmpeg correctamente."""
-    # Crear archivo mp4 vacío
+    """Test that the mp4 to wav conversion uses ffmpeg correctly."""
+    # Create empty mp4 file
     mp4 = tmp_path / 'input.mp4'
     mp4.write_bytes(b'fake mp4 content')
 
-    # Forzar que get_ffmpeg_path devuelva algo
+    # Force get_ffmpeg_path to return something
     monkeypatch.setattr('audio.loader.get_ffmpeg_path', lambda: 'ffmpeg')
 
-    # Mockear subprocess.run para simular éxito y crear el WAV en el path destino
+    # Mock subprocess.run to simulate success and create the WAV in the destination path
     class FakeResult:
         def __init__(self):
             self.returncode = 0
@@ -44,7 +44,7 @@ def test_convert_mp4_to_wav_uses_ffmpeg(monkeypatch, tmp_path):
 
     def fake_run(cmd, capture_output=True, text=True, timeout=None):
         dest_wav = cmd[-1]
-        # Crear un archivo WAV simulado
+        # Create a simulated WAV file
         with open(dest_wav, 'wb') as f:
             f.write(b'RIFF....WAVE')
         return FakeResult()

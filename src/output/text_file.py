@@ -1,8 +1,8 @@
 # src/output/text_file.py
 
-"""Módulo para la exportación de transcripciones a archivos de texto."""
+"""Module for exporting transcripts to text files."""
 
 def save_to_txt(text, filename="transcripcion.txt"):
-    """Guarda el texto transcrito en un archivo de texto."""
+    """Save the transcribed text in a text file."""
     with open(filename, "w", encoding="utf-8") as f:
         f.write(text)

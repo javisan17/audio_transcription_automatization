@@ -1,6 +1,6 @@
 # src/gui/gui_app.py
 
-"""Interfaz gráfica interactiva con Tkinter."""
+"""Interactive graphical interface with Tkinter."""
 
 import os
 import sys
@@ -18,118 +18,118 @@ from transcription import transcribe_audio
 logger = get_logger(__name__)
 
 
-# Determinar ruta base - funciona tanto en desarrollo como en ejecutable
+# Determine base path -works in both development and executable
 if getattr(sys, "frozen", False):
     # Ejecutable compilado
     base_dir = os.path.dirname(sys.executable)
     project_root = base_dir
 else:
-    # En desarrollo
+    # In development
     base_dir = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     )
     project_root = base_dir
 
-# Agregar rutas para importar módulos (asegurar que `src` esté en sys.path)
+# Add paths to import modules (make sure `src` is in sys.path)
 src_path = os.path.join(project_root, "src")
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
 
-# Nota: se ha eliminado la configuración de logging/windowed para usar modo consola.
+# Note: the logging/windowed setting to use console mode has been removed.
 
 
 class AudioTranscriptionGUI:
-    """Clase principal para la interfaz gráfica de transcripción de audio."""
+    """Main class for the audio transcription graphical interface."""
 
     def __init__(self, root):
-        """Inicializar la GUI."""
+        """Initialize the GUI."""
         self.root = root
-        self.root.title("Automatización de Audio - Transcripción")
+        self.root.title("Audio Automation - Transcription")
         self.root.geometry("625x753")
         self.root.resizable(False, False)
 
-        # Variables de control
+        # Control variables
         self.is_recording = False
         self.recording_duration = tk.IntVar(value=30)
         self.transcription_text = ""
         self.audio_recorder = None
         self.recording_thread = None
 
-        # Configurar estilos
+        # Set styles
         self.setup_styles()
 
-        # Crear la interfaz
+        # Create the interface
         self.create_widgets()
 
     def setup_styles(self):
-        """Configurar estilos de la interfaz."""
+        """Configure interface styles."""
         style = ttk.Style()
         style.theme_use("clam")
 
-        # Colores personalizados
+        # Custom colors
         style.configure("Title.TLabel", font=("Helvetica", 16, "bold"))
         style.configure("Heading.TLabel", font=("Helvetica", 12, "bold"))
         style.configure("Info.TLabel", font=("Helvetica", 10))
 
     def create_widgets(self):
-        """Crear los widgets de la interfaz."""
-        # Marco principal
+        """Create the interface widgets."""
+        # Main frame
         main_frame = ttk.Frame(self.root, padding="10")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
 
-        # Título
+        # Title
         title_label = ttk.Label(
-            main_frame, text="AUTOMATIZACIÓN DE AUDIO", style="Title.TLabel"
+            main_frame, text="AUDIO AUTOMATION", style="Title.TLabel"
         )
         title_label.grid(row=0, column=0, columnspan=2, pady=10)
 
-        # Separador
+        # Separator
         ttk.Separator(main_frame, orient="horizontal").grid(
             row=1, column=0, columnspan=2, sticky="ew", pady=5
         )
 
-        # ===== SECCIÓN 1: TRANSCRIBIR ARCHIVO =====
+        # ===== SECTION 1: TRANSCRIBE FILE =====
         file_frame = ttk.LabelFrame(
-            main_frame, text="Opción 1: Transcribir Archivo", padding="10"
+            main_frame, text="Option 1: Transcribe File", padding="10"
         )
         file_frame.grid(row=2, column=0, columnspan=2, sticky="ew", pady=10)
 
         ttk.Label(
-            file_frame, text="Selecciona un archivo de audio:", style="Info.TLabel"
+            file_frame, text="Select an audio file:", style="Info.TLabel"
         ).grid(row=0, column=0, sticky="w")
 
-        self.file_path_var = tk.StringVar(value="Ningún archivo seleccionado")
+        self.file_path_var = tk.StringVar(value="No file selected")
         file_path_label = ttk.Label(
             file_frame, textvariable=self.file_path_var, foreground="gray"
         )
         file_path_label.grid(row=1, column=0, sticky="w", padx=(20, 0))
 
         ttk.Button(
-            file_frame, text="Seleccionar archivo", command=self.select_file
+            file_frame, text="Select File", command=self.select_file
         ).grid(row=2, column=0, sticky="ew", pady=(5, 0))
         ttk.Button(
-            file_frame, text="Transcribir archivo", command=self.transcribe_file
+            file_frame, text="Transcribe File", command=self.transcribe_file
         ).grid(row=3, column=0, sticky="ew", pady=5)
 
-        # ===== SECCIÓN 2: GRABAR Y TRANSCRIBIR =====
+        # ===== SECTION 2: RECORD AND TRANSCRIBE =====
         record_frame = ttk.LabelFrame(
-            main_frame, text="Opción 2: Grabar y Transcribir", padding="10"
+            main_frame, text="Option 2: Record and Transcribe", padding="10"
         )
         record_frame.grid(row=3, column=0, columnspan=2, sticky="ew", pady=10)
 
-        ttk.Label(record_frame, text="Modo de grabación:", style="Info.TLabel").grid(
+        ttk.Label(record_frame, text="Recording mode:", style="Info.TLabel").grid(
             row=0, column=0, sticky="w"
         )
 
-        # Opciones de grabación
+        # Recording options
         mode_frame = ttk.Frame(record_frame)
         mode_frame.grid(row=1, column=0, sticky="ew", pady=(5, 10))
 
         self.record_mode = tk.StringVar(value="duration")
         ttk.Radiobutton(
             mode_frame,
-            text="Duración fija (segundos):",
+            text="Fixed duration (seconds):",
             variable=self.record_mode,
             value="duration",
             command=self._update_record_mode,
@@ -142,7 +142,7 @@ class AudioTranscriptionGUI:
             command=self._update_record_mode,
         ).pack(side="left", padx=20)
 
-        # Frame para duración fija
+        # Frame for fixed duration
         self.duration_frame = ttk.Frame(record_frame)
         self.duration_frame.grid(row=2, column=0, sticky="w", pady=(5, 0))
 
@@ -156,23 +156,23 @@ class AudioTranscriptionGUI:
             textvariable=self.recording_duration,
             width=5,
         ).pack(side="left")
-        ttk.Label(spinbox_frame, text="segundos", style="Info.TLabel").pack(
+        ttk.Label(spinbox_frame, text="seconds", style="Info.TLabel").pack(
             side="left", padx=5
         )
 
-        # Botones para duración fija
+        # Buttons for fixed duration
         self.duration_button = ttk.Button(
-            self.duration_frame, text="Grabar", command=self.start_recording_duration
+            self.duration_frame, text="Record", command=self.start_recording_duration
         )
         self.duration_button.pack(side="left", padx=10)
 
-        # Frame para control manual
+        # Frame for manual control
         self.manual_frame = ttk.Frame(record_frame)
         self.manual_frame.grid(row=2, column=0, sticky="ew", pady=(5, 0))
 
         self.start_button = ttk.Button(
             self.manual_frame,
-            text="Iniciar Grabación",
+            text="Start Recording",
             command=self.start_recording_manual,
             style="Accent.TButton",
         )
@@ -180,28 +180,28 @@ class AudioTranscriptionGUI:
 
         self.stop_button = ttk.Button(
             self.manual_frame,
-            text="Detener Grabación",
+            text="Stop Recording",
             command=self.stop_recording_manual,
             state="disabled",
         )
         self.stop_button.pack(side="left", padx=5)
 
-        # Etiqueta de estado de grabación
+        # Recording status label
         self.recording_status_var = tk.StringVar(value="")
         ttk.Label(
             record_frame, textvariable=self.recording_status_var, foreground="blue"
         ).grid(row=3, column=0, sticky="w", padx=(20, 0))
 
-        # Ocultar frame manual por defecto
+        #Hide manual frame by default
         self.manual_frame.grid_remove()
 
-        # ===== SECCIÓN 3: RESULTADO DE TRANSCRIPCIÓN =====
+        # ===== SECTION 3: TRANSCRIPT RESULT =====
         result_frame = ttk.LabelFrame(
-            main_frame, text="Resultado de Transcripción", padding="10"
+            main_frame, text="Transcription Result", padding="10"
         )
         result_frame.grid(row=4, column=0, columnspan=2, sticky="nsew", pady=10)
 
-        # Texto con scroll
+        # Scrolling text
         self.result_text = scrolledtext.ScrolledText(
             result_frame, height=10, width=70, wrap=tk.WORD
         )
@@ -211,49 +211,49 @@ class AudioTranscriptionGUI:
         result_frame.columnconfigure(0, weight=1)
         result_frame.rowconfigure(0, weight=1)
 
-        # Botones para el resultado
+        # Buttons for the result
         button_frame = ttk.Frame(result_frame)
         button_frame.grid(row=1, column=0, columnspan=2, sticky="ew")
 
         ttk.Button(
             button_frame,
-            text="Copiar al portapapeles",
+            text="Copy to clipboard",
             command=self.copy_to_clipboard,
         ).pack(side="left", padx=5)
         ttk.Button(
-            button_frame, text="Guardar como archivo", command=self.save_to_file
+            button_frame, text="Save as file", command=self.save_to_file
         ).pack(side="left", padx=5)
-        ttk.Button(button_frame, text="🗑️ Limpiar", command=self.clear_text).pack(
+        ttk.Button(button_frame, text="🗑️ Clean", command=self.clear_text).pack(
             side="left", padx=5
         )
 
-        # ===== SECCIÓN 4: BOTONES GENERALES =====
+        # ===== SECTION 4: GENERAL BUTTONS =====
         footer_frame = ttk.Frame(main_frame)
         footer_frame.grid(row=5, column=0, columnspan=2, sticky="ew", pady=10)
 
-        ttk.Button(footer_frame, text="ℹ️ Acerca de", command=self.show_about).pack(
+        ttk.Button(footer_frame, text="ℹ️ About", command=self.show_about).pack(
             side="left", padx=5
         )
-        ttk.Button(footer_frame, text="❌ Salir", command=self.on_closing).pack(
+        ttk.Button(footer_frame, text="❌ Exit", command=self.on_closing).pack(
             side="right", padx=5
         )
 
-        # Configurar peso de filas para responsividad
+        # Configure row weight for responsiveness
         main_frame.columnconfigure(0, weight=1)
         main_frame.rowconfigure(4, weight=1)
 
-        # Manejar cierre de ventana
+        # Handle window closing
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def select_file(self):
-        """Seleccionar un archivo de audio."""
+        """Select an audio file."""
         file_types = [
-            ("Archivos de audio", "*.wav *.mp3 *.m4a *.flac *.ogg *.mp4"),
-            ("Todos los archivos", "*.*"),
+            ("Audio files", "*.wav *.mp3 *.m4a *.flac *.ogg *.mp4"),
+            ("All files", "*.*"),
         ]
 
         file_path = filedialog.askopenfilename(
-            title="Selecciona un archivo de audio", filetypes=file_types
+            title="Select an audio file", filetypes=file_types
         )
 
         if file_path:
@@ -261,96 +261,96 @@ class AudioTranscriptionGUI:
             self.selected_file = file_path
 
     def transcribe_file(self):
-        """Transcribir un archivo de audio seleccionado."""
+        """Transcribe a selected audio file."""
         if not hasattr(self, "selected_file"):
             messagebox.showwarning(
-                "Advertencia", "Por favor, selecciona un archivo primero."
+                "Warning", "Please select a file first."
             )
             return
 
         if not os.path.isfile(self.selected_file):
-            messagebox.showerror("Error", "El archivo no existe.")
+            messagebox.showerror("Error", "The file does not exist.")
             return
 
-        # Ejecutar en un hilo separado para no bloquear la interfaz
+        # Run in a separate thread so as not to block the interface
         thread = threading.Thread(target=self._transcribe_file_thread, daemon=True)
         thread.start()
 
     def _transcribe_file_thread(self):
-        """Hilo para transcribir archivo sin bloquear la GUI."""
+        """Thread to transcribe file without blocking the GUI."""
         try:
             self.result_text.config(state="normal")
             self.result_text.delete(1.0, tk.END)
 
-            # Verificar si es MP4
+            # Check if it is MP4
             if self.selected_file.lower().endswith(".mp4"):
                 self.result_text.insert(
-                    tk.END, "Detectado archivo MP4, convirtiendo a WAV...\n"
+                    tk.END, "Detected MP4 file, converting to WAV...\n"
                 )
             else:
-                self.result_text.insert(tk.END, "Cargando archivo de audio...\n")
+                self.result_text.insert(tk.END, "Loading audio file...\n")
 
             self.result_text.update()
 
-            # Cargar audio (esto convertirá MP4 si es necesario)
+            # Load audio (this will convert MP4 if necessary)
             audio_preparado = load_audio(self.selected_file)
 
-            self.result_text.insert(tk.END, "Transcribiendo...\n")
+            self.result_text.insert(tk.END, "Transcribing...\n")
             self.result_text.update()
 
-            # Transcribir
+            # Transcribe
             self.transcription_text = transcribe_audio(audio_preparado)
 
             if self.transcription_text:
                 self.result_text.delete(1.0, tk.END)
                 self.result_text.insert(tk.END, self.transcription_text)
-                messagebox.showinfo("Éxito", "Transcripción completada")
+                messagebox.showinfo("Success", "Transcription completed")
             else:
                 self.result_text.delete(1.0, tk.END)
                 self.result_text.insert(
                     tk.END,
-                    "No se pudo transcribir el archivo." \
-                    " Verifica que contenga audio válido.",
+                    "No transcription was generated." \
+                    " Verify that the file contains valid audio.",
                 )
-                messagebox.showerror("Error", "No se pudo obtener transcripción.")
+                messagebox.showerror("Error", "No transcription was generated.")
 
         except Exception as e:
-            error_msg = f"Error durante la transcripción:\n{str(e)}"
+            error_msg = f"Error during transcription:\n{str(e)}"
             self.result_text.config(state="normal")
             self.result_text.delete(1.0, tk.END)
             self.result_text.insert(tk.END, error_msg)
             messagebox.showerror("Error", error_msg)
             from logger import get_logger
             logger = get_logger(__name__)
-            logger.error(f"Error en transcripción: {e}")
+            logger.error(f"Transcription error: {e}")
         finally:
             self.result_text.config(state="normal")
 
     def start_recording(self):
-        """Iniciar grabación de audio."""
+        """Start audio recording."""
         duration = self.recording_duration.get()
 
         if duration < 5 or duration > 300:
             messagebox.showwarning(
-                "Advertencia", "La duración debe estar entre 5 y 300 segundos."
+                "Warning", "The duration must be between 5 and 300 seconds."
             )
             return
 
-        # Ejecutar en un hilo separado
+        # Run in a separate thread
         thread = threading.Thread(
             target=self._recording_thread, args=(duration,), daemon=True
         )
         thread.start()
 
     def _recording_thread(self, duration):
-        """Hilo para grabar sin bloquear la GUI."""
+        """Thread to record without blocking the GUI."""
         try:
             self.is_recording = True
-            self.recording_status_var.set(f"Grabando... ({duration}s)")
+            self.recording_status_var.set(f"Recording... ({duration}s)")
             self.result_text.config(state="normal")
             self.result_text.delete(1.0, tk.END)
             self.result_text.insert(
-                tk.END, f"Grabando {duration} segundos de audio...\n"
+                tk.END, f"Recording {duration} seconds of audio...\n"
             )
             self.result_text.update()
 
@@ -358,16 +358,16 @@ class AudioTranscriptionGUI:
             audio_grabado = record_audio(duration=duration)
 
             if not audio_grabado:
-                messagebox.showerror("Error", "Error durante la grabación.")
+                messagebox.showerror("Error", "Error during recording.")
                 self.recording_status_var.set("")
                 self.duration_button.config(state="normal")
                 return
 
             self.result_text.delete(1.0, tk.END)
-            self.result_text.insert(tk.END, "Transcribiendo audio grabado...\n")
+            self.result_text.insert(tk.END, "Transcribing recorded audio...\n")
             self.result_text.update()
 
-            # Transcribir
+            # Transcribe
             try:
                 self.transcription_text = transcribe_audio(audio_grabado)
 
@@ -375,35 +375,35 @@ class AudioTranscriptionGUI:
                     self.result_text.delete(1.0, tk.END)
                     self.result_text.insert(tk.END, self.transcription_text)
                     messagebox.showinfo(
-                        "Éxito", "Grabación y transcripción completadas"
+                        "Success", "Recording and transcription completed"
                     )
                 else:
                     self.result_text.delete(1.0, tk.END)
                     self.result_text.insert(
                         tk.END,
-                        "No se pudo transcribir el audio grabado." \
-                        " Asegúrate de haber hablado claramente.",
+                        "The recorded audio could not be transcribed." \
+                        "Make sure you have spoken clearly.",
                     )
                     messagebox.showerror(
                         "Error",
-                        "No se pudo obtener transcripción del audio grabado.",
+                        "No transcription could be obtained from the recorded audio.",
                     )
             except Exception as trans_error:
-                error_msg = f"Error al transcribir:\n{str(trans_error)}"
+                error_msg = f"Error during transcription:\n{str(trans_error)}"
                 self.result_text.delete(1.0, tk.END)
                 self.result_text.insert(tk.END, error_msg)
-                messagebox.showerror("Error de Transcripción", error_msg)
-                logger.exception(f"Error en transcripción: {trans_error}")
+                messagebox.showerror("Transcription Error", error_msg)
+                logger.exception(f"Transcription error: {trans_error}")
 
             self.recording_status_var.set("")
 
         except Exception as e:
-            error_msg = f"Error durante la grabación:\n{str(e)}"
+            error_msg = f"Error during recording:\n{str(e)}"
             self.result_text.config(state="normal")
             self.result_text.delete(1.0, tk.END)
             self.result_text.insert(tk.END, error_msg)
             messagebox.showerror("Error", error_msg)
-            logger.exception(f"Error en grabación: {e}")
+            logger.exception(f"Error during recording: {e}")
             self.recording_status_var.set("")
         finally:
             self.is_recording = False
@@ -411,70 +411,70 @@ class AudioTranscriptionGUI:
             self.duration_button.config(state="normal")
 
     def copy_to_clipboard(self):
-        """Copiar el texto transcrito al portapapeles."""
+        """Copy the transcribed text to the clipboard."""
         text = self.result_text.get(1.0, tk.END).strip()
 
         if not text:
-            messagebox.showwarning("Advertencia", "No hay texto para copiar.")
+            messagebox.showwarning("Warning", "There is no text to copy.")
             return
 
         try:
             copy_to_clipboard(text)
-            messagebox.showinfo("Éxito", "Texto copiado al portapapeles")
+            messagebox.showinfo("Success", "Text copied to clipboard")
         except Exception as e:
-            messagebox.showerror("Error", f"Error al copiar: {str(e)}")
+            messagebox.showerror("Error", f"Error copying text: {str(e)}")
 
     def save_to_file(self):
-        """Guardar el texto transcrito en un archivo."""
+        """Save the transcribed text to a file."""
         text = self.result_text.get(1.0, tk.END).strip()
 
         if not text:
-            messagebox.showwarning("Advertencia", "No hay texto para guardar.")
+            messagebox.showwarning("Warning", "There is no text to save.")
             return
 
         file_path = filedialog.asksaveasfilename(
             defaultextension=".txt",
-            filetypes=[("Archivos de texto", "*.txt"), ("Todos los archivos", "*.*")],
+            filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
         )
 
         if file_path:
             try:
                 save_to_txt(text, file_path)
-                messagebox.showinfo("Éxito", f"✅ Archivo guardado en:\n{file_path}")
+                messagebox.showinfo("Success", f"✅ File saved to:\n{file_path}")
             except Exception as e:
-                messagebox.showerror("Error", f"Error al guardar: {str(e)}")
+                messagebox.showerror("Error", f"Error saving file: {str(e)}")
 
     def clear_text(self):
-        """Limpiar el área de texto."""
+        """Clear the text area."""
         self.result_text.delete(1.0, tk.END)
         self.transcription_text = ""
 
     def show_about(self):
-        """Mostrar información acerca de la aplicación."""
+        """Show information about the application."""
         about_text = """
-Automatización de Audio - Transcripción
+Audio Automation -Transcription
 
-Versión: 2.0
-Descripción: Aplicación para transcribir archivos de audio
-o grabar y transcribir en tiempo real usando Whisper AI.
+Version: 2.0
+Description: Application to transcribe audio files
+or record and transcribe in real time using Whisper AI.
 
-Funcionalidades:
-• Transcribir archivos de audio (.wav, .mp3, .m4a, .flac, .ogg)
-• Grabar audio con duración fija
-• Grabar audio con control manual (START/STOP)
-• Copiar transcripciones al portapapeles
-• Guardar transcripciones en archivos .txt
+Features:
+• Transcribe audio files (.wav, .mp3, .m4a, .flac, .ogg)
+• Record audio with fixed duration
+• Record audio with manual control (START/STOP)
+• Copy transcripts to clipboard
+• Save transcripts to .txt files
 
-Tecnologías:
-• OpenAI Whisper (transcripción)
-• Tkinter (interfaz gráfica)
-• SoundDevice (grabación)
-• SoundFile (procesamiento de audio)
+Technologies:
+• OpenAI Whisper (transcript)
+• Tkinter (graphical interface)
+• SoundDevice (recording)
+• SoundFile (audio processing)
         """
-        messagebox.showinfo("Acerca de", about_text)
+        messagebox.showinfo("About", about_text)
 
     def _update_record_mode(self):
-        """Actualizar visibilidad de frames según el modo seleccionado."""
+        """Update frame visibility according to the selected mode."""
         if self.record_mode.get() == "duration":
             self.duration_frame.grid()
             self.manual_frame.grid_remove()
@@ -483,32 +483,32 @@ Tecnologías:
             self.manual_frame.grid()
 
     def start_recording_duration(self):
-        """Iniciar grabación de audio con duración fija."""
+        """Start audio recording with fixed duration."""
         duration = self.recording_duration.get()
 
         if duration < 5 or duration > 300:
             messagebox.showwarning(
-                "Advertencia", "La duración debe estar entre 5 y 300 segundos."
+                "Warning", "The duration must be between 5 and 300 seconds."
             )
             return
 
         self.duration_button.config(state="disabled")
 
-        # Ejecutar en un hilo separado (NO daemon para que termine completamente)
+        # Run in a separate thread (NOT daemon so it terminates completely)
         thread = threading.Thread(
             target=self._recording_thread, args=(duration,), daemon=False
         )
         thread.start()
 
     def _recording_thread(self, duration):
-        """Hilo para grabar sin bloquear la GUI."""
+        """Thread to record without blocking the GUI."""
         try:
             self.is_recording = True
-            self.recording_status_var.set(f"Grabando... ({duration}s)")
+            self.recording_status_var.set(f"Recording... ({duration}s)")
             self.result_text.config(state="normal")
             self.result_text.delete(1.0, tk.END)
             self.result_text.insert(
-                tk.END, f"Grabando {duration} segundos de audio...\n"
+                tk.END, f"Recording {duration} seconds of audio...\n"
             )
             self.result_text.update()
 
@@ -516,16 +516,16 @@ Tecnologías:
             audio_grabado = record_audio(duration=duration)
 
             if not audio_grabado:
-                messagebox.showerror("Error", "Error durante la grabación.")
+                messagebox.showerror("Error", "Error during recording.")
                 self.recording_status_var.set("")
                 self.duration_button.config(state="normal")
                 return
 
             self.result_text.delete(1.0, tk.END)
-            self.result_text.insert(tk.END, "Transcribiendo audio grabado...\n")
+            self.result_text.insert(tk.END, "Transcribing recorded audio...\n")
             self.result_text.update()
 
-            # Transcribir
+            # Transcribe
             try:
                 self.transcription_text = transcribe_audio(audio_grabado)
 
@@ -533,35 +533,35 @@ Tecnologías:
                     self.result_text.delete(1.0, tk.END)
                     self.result_text.insert(tk.END, self.transcription_text)
                     messagebox.showinfo(
-                        "Éxito", "Grabación y transcripción completadas"
+                        "Success", "Recording and transcription completed"
                     )
                 else:
                     self.result_text.delete(1.0, tk.END)
                     self.result_text.insert(
                         tk.END,
-                        "No se pudo transcribir el audio grabado." \
-                        " Asegúrate de haber hablado claramente.",
+                        "No transcription of the recorded audio could be obtained. " \
+                        "Ensure you spoke clearly.",
                     )
                     messagebox.showerror(
                         "Error",
-                        "No se pudo obtener transcripción del audio grabado.",
+                        "No transcription of the recorded audio could be obtained.",
                     )
             except Exception as trans_error:
-                error_msg = f"Error al transcribir:\n{str(trans_error)}"
+                error_msg = f"Error when transcribing:\n{str(trans_error)}"
                 self.result_text.delete(1.0, tk.END)
                 self.result_text.insert(tk.END, error_msg)
-                messagebox.showerror("Error de Transcripción", error_msg)
-                logger.exception(f"Error en transcripción: {trans_error}")
+                messagebox.showerror("Transcription Error", error_msg)
+                logger.exception(f"Error in transcription: {trans_error}")
 
             self.recording_status_var.set("")
 
         except Exception as e:
-            error_msg = f"Error durante la grabación:\n{str(e)}"
+            error_msg = f"Error during recording:\n{str(e)}"
             self.result_text.config(state="normal")
             self.result_text.delete(1.0, tk.END)
             self.result_text.insert(tk.END, error_msg)
             messagebox.showerror("Error", error_msg)
-            logger.exception(f"Error en grabación: {e}")
+            logger.exception(f"Error during recording: {e}")
             self.recording_status_var.set("")
         finally:
             self.is_recording = False
@@ -569,47 +569,47 @@ Tecnologías:
             self.duration_button.config(state="normal")
 
     def start_recording_manual(self):
-        """Iniciar grabación manual (sin límite de tiempo)."""
+        """Start manual recording (no time limit)."""
         self.audio_recorder = AudioRecorder()
         self.audio_recorder.start_recording()
 
         self.start_button.config(state="disabled")
         self.stop_button.config(state="normal")
         self.recording_status_var.set(
-            "Grabando... (presiona DETENER para finalizar)"
+            "Recording... (press STOP to finish)"
         )
 
         self.result_text.config(state="normal")
         self.result_text.delete(1.0, tk.END)
         self.result_text.insert(
             tk.END,
-            "Grabando audio en tiempo real...\n"
-            "Presiona 'Detener Grabación' cuando termines.\n",
+            "Recording audio in real time...\n"
+            "Press 'Stop Recording' when finished.\n",
         )
         self.result_text.update()
 
     def stop_recording_manual(self):
-        """Detener grabación manual y transcribir."""
+        """Stop manual recording and transcribe."""
         if not self.audio_recorder:
-            messagebox.showerror("Error", "No hay grabación activa.")
+            messagebox.showerror("Error", "No active recording.")
             return
 
         self.stop_button.config(state="disabled")
         self.start_button.config(state="normal")
-        self.recording_status_var.set("Procesando audio grabado...")
+        self.recording_status_var.set("Processing recorded audio...")
 
-        # Detener grabación
+        # Stop recording
         audio_grabado = self.audio_recorder.stop_recording()
         self.audio_recorder = None
 
         if not audio_grabado:
             messagebox.showerror(
-                "Error", "Error durante la grabación. No se capturó audio."
+                "Error", "Error during recording. No audio was captured."
             )
             self.recording_status_var.set("")
             return
 
-        # Transcribir en un hilo separado (NO daemon para que termine completamente)
+        #Transcribe to a separate thread (NOT daemon so it terminates completely)
         thread = threading.Thread(
             target=self._transcribe_manual_recording,
             args=(audio_grabado,),
@@ -618,14 +618,14 @@ Tecnologías:
         thread.start()
 
     def _transcribe_manual_recording(self, audio_path):
-        """Transcribir el audio grabado manualmente."""
+        """Transcribe recorded audio manually."""
         try:
             self.result_text.config(state="normal")
             self.result_text.delete(1.0, tk.END)
-            self.result_text.insert(tk.END, "Transcribiendo audio grabado...\n")
+            self.result_text.insert(tk.END, "Transcribing recorded audio...\n")
             self.result_text.update()
 
-            # Transcribir
+            # Transcribe
             try:
                 self.transcription_text = transcribe_audio(audio_path)
 
@@ -633,35 +633,35 @@ Tecnologías:
                     self.result_text.delete(1.0, tk.END)
                     self.result_text.insert(tk.END, self.transcription_text)
                     messagebox.showinfo(
-                        "Éxito", "Grabación y transcripción completadas"
+                        "Success", "Recording and transcription completed"
                     )
                 else:
                     self.result_text.delete(1.0, tk.END)
                     self.result_text.insert(
                         tk.END,
-                        "No se pudo transcribir el audio grabado." \
-                        " Asegúrate de haber hablado claramente.",
+                        "The recorded audio could not be transcribed." \
+                        "Make sure you have spoken clearly.",
                     )
                     messagebox.showerror(
                         "Error",
-                        "No se pudo obtener transcripción del audio grabado.",
+                        "Could not obtain transcription of the recorded audio.",
                     )
             except Exception as trans_error:
-                error_msg = f"Error al transcribir:\n{str(trans_error)}"
+                error_msg = f"Error transcribing audio:\n{str(trans_error)}"
                 self.result_text.delete(1.0, tk.END)
                 self.result_text.insert(tk.END, error_msg)
-                messagebox.showerror("Error de Transcripción", error_msg)
-                logger.exception(f"Error en transcripción: {trans_error}")
+                messagebox.showerror("Transcription Error", error_msg)
+                logger.exception(f"Error in transcription: {trans_error}")
 
             self.recording_status_var.set("")
 
         except Exception as e:
-            error_msg = f"Error durante la grabación:\n{str(e)}"
+            error_msg = f"Error during recording:\n{str(e)}"
             self.result_text.config(state="normal")
             self.result_text.delete(1.0, tk.END)
             self.result_text.insert(tk.END, error_msg)
             messagebox.showerror("Error", error_msg)
-            logger.exception(f"Error en grabación: {e}")
+            logger.exception(f"Error in recording: {e}")
             self.recording_status_var.set("")
         finally:
             self.result_text.config(state="normal")
@@ -684,8 +684,8 @@ Tecnologías:
     #     thread.start()
 
     def on_closing(self):
-        """Manejar el cierre de la aplicación."""
-        # Detener cualquier grabación en curso
+        """Handle application closure."""
+        # Stop any recording in progress
         if (
             hasattr(self, "audio_recorder")
             and self.audio_recorder
@@ -695,13 +695,13 @@ Tecnologías:
             if self.audio_recorder.thread:
                 self.audio_recorder.thread.join(timeout=1)
 
-        # Cerrar la aplicación
+        # Close the application
         self.root.quit()
         self.root.destroy()
 
 
 def main():
-    """Función principal para iniciar la GUI."""
+    """Start the GUI."""
     root = tk.Tk()
     AudioTranscriptionGUI(root)
     root.mainloop()

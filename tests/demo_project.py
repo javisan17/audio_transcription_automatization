@@ -1,13 +1,14 @@
-"""Script de demostración de las funcionalidades principales del proyecto.
+"""Demo script of the main functionalities of the project.
 
-Simula los flujos de ambas opciones sin necesidad de interacción manual.
+Simulates the flows of both options without the need for manual interaction.
 """
 
 import os
 import sys
+from pydoc import text
 
 
-# Agregar src al path (padre del padre)
+# Add src to path (parent of parent)
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from audio import load_audio
@@ -18,85 +19,84 @@ from transcription import transcribe_audio
 
 logger = get_logger(__name__)
 logger.info("\n" + "=" * 70)
-logger.info("DEMOSTRACIÓN DEL PROYECTO - AUTOMATIZACIÓN DE AUDIO")
+logger.info("PROJECT DEMO – AUDIO AUTOMATION")
 logger.info("=" * 70)
 
-# OPCIÓN 1: Transcribir archivo
+# OPTION 1: Transcribe file
 logger.info("\n" + "-" * 70)
-logger.info("OPCIÓN 1: TRANSCRIBIR ARCHIVO DE AUDIO")
+logger.info("OPTION 1: TRANSCRIBE AUDIO FILE")
 logger.info("-" * 70)
 
 try:
-    logger.info("✓ Detectando archivo de audio...")
+    logger.info("✓ Detecting audio file...")
     audio_path = "audio/test_audio.wav"
 
     if os.path.exists(audio_path):
-        logger.info(f"✓ Archivo encontrado: {audio_path}")
+        logger.info(f"✓ File found: {audio_path}")
 
-        logger.info("✓ Cargando y preparando audio...")
-        audio_preparado = load_audio(audio_path)
-        logger.info("✓ Audio preparado para transcripción")
+        logger.info("✓ Loading and preparing audio...")
+        prepared_audio = load_audio(audio_path)
+        logger.info("✓ Audio prepared for transcription")
 
-        logger.info("✓ Iniciando transcripción...")
-        logger.info(
-            "  (Descargando modelo Whisper - esto puede tardar en la primera ejecución)"
+        logger.info("✓ Starting transcription...")
+        logger.info("(Downloading Whisper model -" \
+        "this may take a while on the first run)"
         )
-        texto = transcribe_audio(audio_preparado)
+        text = transcribe_audio(prepared_audio)
 
-        if texto:
-            logger.info("✓ Transcripción completada")
-            logger.info(f"  Texto: '{texto}'")
+        if text:
+            logger.info("✓ Transcription completed")
+            logger.info(f" Text: '{text}'")
 
-            # Simular opción de guardado
-            logger.info("\n✓ Guardando transcripción en archivo...")
-            save_to_txt(texto, "output/transcripcion_resultado.txt")
-            logger.info("✓ Archivo guardado: transcripcion_resultado.txt")
+            # Simulate save option
+            logger.info("\n✓ Saving transcript to file...")
+            save_to_txt(text, "output/transcription_resultado.txt")
+            logger.info("✓ Saved file: transcription_resultado.txt")
 
-            logger.info("\n✓ Copiando texto al portapapeles...")
-            copy_to_clipboard(texto)
-            logger.info("✓ Texto disponible en portapapeles")
+            logger.info("\n✓ Copying text to clipboard...")
+            copy_to_clipboard(text)
+            logger.info("✓ Text available in clipboard")
 
         else:
-            logger.warning("⚠ No se pudo obtener transcripción")
+            logger.warning("⚠ Could not get transcript")
 
     else:
-        logger.warning(f"⚠ No se encontró archivo: {audio_path}")
+        logger.warning(f"⚠ No file found: {audio_path}")
 
 except Exception as e:
-    logger.error(f"❌ Error en Opción 1: {e}")
+    logger.error(f"❌ Error in Option 1: {e}")
 
-# OPCIÓN 2: Simular grabación (sin grabar realmente)
-logger.info("\n" + "-" * 70)
-logger.info("OPCIÓN 2: GRABAR Y TRANSCRIBIR (DEMOSTRACIÓN)")
-logger.info("-" * 70)
+# OPTION 2: Simulate recording (without actually recording)
+logger.info("\n" + "-" *70)
+logger.info("OPTION 2: RECORD AND TRANSCRIBE (DEMO)")
+logger.info("-" *70)
 
 try:
-    logger.info("✓ Módulo de grabación disponible")
-    logger.info("✓ Módulo de transcripción disponible")
-    logger.info("✓ Módulos de salida disponibles")
+    logger.info("✓ Recording module available")
+    logger.info("✓ Transcription module available")
+    logger.info("✓ Available output modules")
 
-    logger.info("\nPara probar la grabación real:")
-    logger.info("  1. Ejecuta: python src/main.py")
-    logger.info("  2. Selecciona opción 2")
-    logger.info("  3. Especifica duración de grabación")
-    logger.info("  4. Habla durante la grabación")
-    logger.info("  5. El audio se transcribirá automáticamente")
-
+    logger.info("\nTo test the actual recording:")
+    logger.info(" 1. Run: python src/main.py")
+    logger.info(" 2. Select option 2")
+    logger.info(" 3. Specifies recording duration")
+    logger.info(" 4. Talk while recording")
+    logger.info(" 5. The audio will be transcribed automatically")
 except Exception as e:
-    logger.error(f"❌ Error en Opción 2: {e}")
+    logger.error(f"❌ Error in Option 2: {e}")
 
-# Resumen final
-logger.info("\n" + "=" * 70)
-logger.info("RESUMEN DE PRUEBAS")
-logger.info("=" * 70)
-logger.info("✅ Carga de archivos de audio: OK")
-logger.info("✅ Transcripción con Whisper: OK")
-logger.info("✅ Guardado en archivos: OK")
-logger.info("✅ Copia al portapapeles: OK")
-logger.info("✅ Estructura del proyecto: OK")
-logger.info("\n" + "=" * 70)
-logger.info("🎉 El proyecto está listo para usar")
-logger.info("=" * 70)
-logger.info("\nPróximos pasos:")
-logger.info("  1. Ejecuta: python src/main.py")
-logger.info("  2. O compila a .exe: python build_exe.py")
+# Final summary
+logger.info("\n" + "=" *70)
+logger.info("TESTS SUMMARY")
+logger.info("=" *70)
+logger.info("✅ Loading audio files: OK")
+logger.info("✅ Whisper Transcription: OK")
+logger.info("✅ Saved to files: OK")
+logger.info("✅ Copy to clipboard: OK")
+logger.info("✅ Project structure: OK")
+logger.info("\n" + "=" *70)
+logger.info("🎉 The project is ready to use")
+logger.info("=" *70)
+logger.info("\nNext steps:")
+logger.info(" 1. Executed: python src/main.py")
+logger.info(" 2. O compile a .exe: python build_exe.py")

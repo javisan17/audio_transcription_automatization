@@ -1,4 +1,4 @@
-"""Tests para la interfaz gráfica de usuario de transcripción de audio."""
+"""Tests for the audio transcription graphical user interface."""
 
 import os
 import sys
@@ -11,8 +11,8 @@ from gui.gui_app import AudioTranscriptionGUI
 
 
 def test_gui_transcribe_file(monkeypatch, tmp_path):
-    """Testear la transcripción de un archivo desde la GUI."""
-    # Crear archivo wav
+    """Test the transcription of a file from the GUI."""
+    # Create wav file
     import numpy as np
     import soundfile as sf
 
@@ -20,19 +20,19 @@ def test_gui_transcribe_file(monkeypatch, tmp_path):
     data = 0.1 * np.sin(2 * np.pi * 440 * np.linspace(0, 0.1, 1600))
     sf.write(str(wav), data, 16000)
 
-    # Asegurar que Tk está disponible, o saltar la prueba
+    # Ensure that Tk is available, or skip the test
     try:
         root = tk.Tk()
         root.withdraw()
     except tk.TclError:
         import pytest
-        pytest.skip('Tk no disponible en este entorno')
+        pytest.skip('Tk not available in this environment')
 
-    # Mockear load_audio y transcribe_audio en el módulo de la GUI
+    # Mock load_audio and transcribe_audio in GUI module
     monkeypatch.setattr('gui.gui_app.load_audio', lambda p: str(wav))
     monkeypatch.setattr('gui.gui_app.transcribe_audio', lambda p: 'texto GUI')
 
-    # Mockear messagebox para evitar diálogos
+    # Mock messagebox to avoid dialogs
     calls = {}
     monkeypatch.setattr('tkinter.messagebox.showinfo', 
                         lambda *a, **k: calls.setdefault('info', True))
@@ -42,7 +42,7 @@ def test_gui_transcribe_file(monkeypatch, tmp_path):
     gui = AudioTranscriptionGUI(root)
 
     gui.selected_file = str(wav)
-    # Llamar directamente al método que normalmente corre en hilo
+    # Directly call the method that normally runs in a thread
     gui._transcribe_file_thread()
 
     content = gui.result_text.get(1.0, tk.END).strip()
@@ -52,8 +52,8 @@ def test_gui_transcribe_file(monkeypatch, tmp_path):
 
 
 def test_gui_save_and_copy(monkeypatch, tmp_path):
-    """Testear guardar en archivo y copiar al portapapeles desde la GUI."""
-    # Mockear filedialog y messagebox
+    """Try saving to file and copying to clipboard from the GUI."""
+    # Mock filedialog and messagebox
     monkeypatch.setattr('tkinter.filedialog.asksaveasfilename',
                         lambda **k: str(tmp_path / 'out.txt'))
     saved = {}
@@ -65,24 +65,24 @@ def test_gui_save_and_copy(monkeypatch, tmp_path):
         root.withdraw()
     except tk.TclError:
         import pytest
-        pytest.skip('Tk no disponible en este entorno')
+        pytest.skip('Tk not available in this environment')
     gui = AudioTranscriptionGUI(root)
 
-    # Poner texto en el widget
-    gui.result_text.insert(tk.END, 'texto para guardar')
+    # Put text in the widget
+    gui.result_text.insert(tk.END, 'text to save')
 
     gui.save_to_file()
 
     out_file = tmp_path / 'out.txt'
     assert out_file.exists()
-    assert 'texto para guardar' in out_file.read_text(encoding='utf-8')
+    assert 'text to save' in out_file.read_text(encoding='utf-8')
 
-    # Copiar al portapapeles mockeando la función IMPORTADA en el módulo de la GUI
+    # Copy to clipboard by mocking the IMPORTED function in the GUI module
     captured = {}
     monkeypatch.setattr('gui.gui_app.copy_to_clipboard',
                         lambda t: captured.setdefault('text', t))
 
     gui.copy_to_clipboard()
-    assert captured.get('text') == 'texto para guardar'
+    assert captured.get('text') == 'text to save'
 
     root.destroy()

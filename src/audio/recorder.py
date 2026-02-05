@@ -1,7 +1,6 @@
 # src/audio/recorder.py
 
-"""Gestión de grabación de audio en tiempo real."""
-
+"""Real-time audio recording management."""
 import tempfile
 import threading
 
@@ -16,17 +15,17 @@ logger = get_logger(__name__)
 
 
 class AudioRecorder:
-    """Grabador de audio con control de inicio/parada."""
+    """Audio recorder with start/stop control."""
 
     def __init__(self):
-        """Inicializa el estado del grabador y el buffer de audio."""
+        """Initialize the status of the recorder and the audio buffer."""
         self.is_recording = False
         self.audio_data = []
         self.sample_rate = 16000
         self.thread = None
 
     def start_recording(self):
-        """Inicia la grabación de audio."""
+        """Start audio recording."""
         if self.is_recording:
             return
 
@@ -35,36 +34,36 @@ class AudioRecorder:
 
         import logging
         logger = logging.getLogger(__name__)
-        logger.info("Iniciando grabación... (presiona STOP en la GUI para detener)")
+        logger.info("Starting recording... (press STOP in the GUI to stop)")
 
-        # Iniciar grabación en un hilo separado
+        # Start recording in a separate thread
         self.thread = threading.Thread(target=self._record_stream, daemon=True)
         self.thread.start()
 
     def _record_stream(self):
-        """Stream de grabación continua."""
+        """Continuous recording stream."""
         try:
-            # Verificar dispositivos
+            # Check devices
             devices = sd.query_devices()
             input_devices = [
                 i for i, dev in enumerate(devices) if dev["max_input_channels"] > 0
             ]
 
             if not input_devices:
-                logger.warning("No se encontraron dispositivos de entrada de audio.")
+                logger.warning("No input audio devices found.")
                 self.is_recording = False
                 return
 
-            device = None  # Por defecto
+            device = None  # Default
 
-            # Usar stream para grabación continua
+            #Use stream for continuous recording
             def audio_callback(indata, frames, time, status):
                 if status:
-                    logger.debug(f"Estado del stream: {status}")
-                # Copiar datos de audio
+                    logger.debug(f"Stream status: {status}")
+                # Copy audio data
                 self.audio_data.append(indata.copy())
 
-            # Crear stream de audio
+            # Create audio stream
             with sd.InputStream(
                 callback=audio_callback,
                 channels=1,
@@ -72,86 +71,86 @@ class AudioRecorder:
                 blocksize=4096,
                 device=device,
             ):
-                # Grabar mientras is_recording sea True
+                # Record while is_recording is True
                 while self.is_recording:
-                    sd.sleep(100)  # Pequeña pausa para no consumir CPU
+                    sd.sleep(100)  # Small pause to not consume CPU
 
         except Exception as e:
-            logger.exception(f"Error durante la grabación: {e}")
+            logger.exception(f"Error during recording: {e}")
             self.is_recording = False
 
     def stop_recording(self) -> str:
-        """Detiene la grabación y retorna la ruta del archivo WAV."""
+        """Stop recording and returns the WAV file path."""
         if not self.is_recording:
             return None
 
         self.is_recording = False
 
-        # Esperar a que termine el thread
+        # Wait for the thread to end
         if self.thread:
             self.thread.join(timeout=2)
 
-        logger.info("Grabación detenida")
+        logger.info("Recording stopped")
 
         if not self.audio_data:
-            logger.warning("No se grabó audio")
+            logger.warning("No audio was recorded")
             return None
 
-        # Concatenar todos los bloques de audio
+        # Concatenate all audio blocks
         audio_array = np.concatenate(self.audio_data, axis=0)
 
-        # Convertir a float32
+        # Convert to float32
         audio_array = audio_array.astype(np.float32)
 
-        # Normalizar si es necesario
+        # Normalize if necessary
         max_val = np.abs(audio_array).max()
         if max_val > 1.0:
             audio_array = audio_array / max_val
 
-        # Guardar en archivo temporal
+        # Save to temporary file
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
             temp_wav = temp_file.name
         sf.write(temp_wav, audio_array, self.sample_rate)
 
-        logger.info(f"Audio guardado: {temp_wav}")
+        logger.info(f"Saved Audio: {temp_wav}")
         return temp_wav
 
 
-# Instancia global del grabador
+# Global recorder instance
 global_recorder = AudioRecorder()
 
 
 def start_recording() -> None:
-    """Inicia la grabación de audio."""
+    """Start audio recording."""
     global_recorder.start_recording()
 
 
 def stop_recording() -> str:
-    """Detiene la grabación y retorna la ruta del archivo."""
+    """Stop recording and returns the WAV file path."""
     return global_recorder.stop_recording()
 
 
 def record_audio(duration: int = 30, sample_rate: int = 16000) -> str:
-    """Función legacy para compatibilidad.
+    """Legacy function for compatibility.
 
-    Graba audio durante un tiempo específico.
+    Record audio for a specific time.
     """
-    logger.info(f"Grabando durante {duration} segundos...")
+    logger.info(f"Recording for {duration} seconds...")
 
     try:
-        # Verificar dispositivos disponibles
+        # Check available devices
         devices = sd.query_devices()
         input_devices = [
             i for i, dev in enumerate(devices) if dev["max_input_channels"] > 0
         ]
 
         if not input_devices:
-            raise RuntimeError("No se encontraron dispositivos de entrada de audio.")
+            raise RuntimeError("No audio input devices found.")
 
-        # Usar el dispositivo por defecto o el primero disponible
-        device = None  # Por defecto
+        #Use the default device or the first available
+        device = None # Default
 
-        # Grabar audio
+        # Record audio
         audio_data = sd.rec(
             int(duration * sample_rate),
             samplerate=sample_rate,
@@ -160,25 +159,25 @@ def record_audio(duration: int = 30, sample_rate: int = 16000) -> str:
             device=device,
         )
 
-        # Esperar a que termine la grabación
+        # Wait for the recording to finish
         sd.wait()
 
-        # Verificar que se grabó algo
+        # Verify that something was recorded
         if np.abs(audio_data).max() < 0.01:
-            raise RuntimeError("No se detectó audio. Verifica el micrófono.")
+            raise RuntimeError("No audio detected. Verify the microphone is working.")
 
-        # Guardar en archivo temporal
+        # Save to temporary file
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
             temp_wav = temp_file.name
         sf.write(temp_wav, audio_data, sample_rate)
 
-        logger.info(f"Grabación completada: {temp_wav}")
+        logger.info(f"Recording completed: {temp_wav}")
         return temp_wav
 
     except KeyboardInterrupt:
-        logger.info("\nGrabación cancelada.")
+        logger.info("\nRecording cancelled.")
         return None
 
     except Exception as e:
-        logger.error(f"Error al grabar: {e}")
+        logger.error(f"Error during recording: {e}")
         return None

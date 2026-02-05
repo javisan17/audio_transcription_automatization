@@ -1,10 +1,10 @@
 # src/output/clipboard.py
 
-"""Módulo para la interacción con el portapapeles del sistema."""
+"""Module for interaction with the system clipboard."""
 
 import pyperclip
 
 
 def copy_to_clipboard(text):
-    """Copia el texto al portapapeles."""
+    """Copy the text to the clipboard."""
     pyperclip.copy(text)

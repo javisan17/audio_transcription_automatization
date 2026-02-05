@@ -1,4 +1,4 @@
-"""Lógica central para la captura y carga de señales de audio."""
+"""Central logic for capturing and loading audio signals."""
 
 from .loader import load_audio
 from .recorder import record_audio

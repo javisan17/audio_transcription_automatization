@@ -1,6 +1,6 @@
 # src/options/option1.py
 
-"""Módulo para la gestión de la opción 1 (transcripción de un archivo)."""
+"""Module for managing option 1 (file transcription)."""
 
 import os
 
@@ -13,43 +13,43 @@ from transcription import transcribe_audio
 logger = get_logger(__name__)
 
 
-def opcion_1_transcribir_archivo():
-    """Transcribe un archivo de audio existente."""
-    logger.info("\n=== OPCIÓN 1: Transcribir Archivo ===")
-    archivo = input("Ingresa la ruta al archivo de audio: ").strip()
+def option_1_transcribe_file():
+    """Transcribes an existing audio file."""
+    logger.info("\n=== OPTION 1: Transcribe File ===")
+    file_path = input("Enter the path to the audio file: ").strip()
 
-    if not os.path.isfile(archivo):
-        logger.warning("El archivo no existe.")
+    if not os.path.isfile(file_path):
+        logger.warning("The file does not exist.")
         return
 
-    # Cargar y preparar audio
-    audio_preparado = load_audio(archivo)
+    # Load and prepare audio
+    prepared_audio = load_audio(file_path)
 
-    # Transcribir
-    texto = transcribe_audio(audio_preparado)
-    if not texto:
-        logger.error("Error en la transcripción.")
+    # Transcribe
+    text = transcribe_audio(prepared_audio)
+    if not text:
+        logger.error("Error during transcription.")
         return
 
-    # Mostrar texto
-    logger.info(f"\nTexto transcrito:\n{texto}\n")
+    # Display text
+    logger.info(f"\nTranscribed text:\n{text}\n")
 
-    # Preguntar dónde guardar
-    opcion_salida = input(
-        "¿Dónde quieres guardar? (1=Portapapeles, 2=Archivo .txt): "
+    # Ask where to save
+    output_option = input(
+        "Where do you want to save? (1=Clipboard, 2=.txt file): "
     ).strip()
 
-    if opcion_salida == "1":
-        copy_to_clipboard(texto)
-        logger.info("Texto copiado al portapapeles.")
+    if output_option == "1":
+        copy_to_clipboard(text)
+        logger.info("Text copied to clipboard.")
 
-    elif opcion_salida == "2":
-        nombre_archivo = input(
-            "Nombre del archivo (default: transcripcion.txt): "
+    elif output_option == "2":
+        file_name = input(
+            "File name (default: transcription.txt): "
         ).strip()
-        nombre_archivo = nombre_archivo or "transcripcion.txt"
-        save_to_txt(texto, nombre_archivo)
-        logger.info(f"Texto guardado en {nombre_archivo}")
+        file_name = file_name or "transcription.txt"
+        save_to_txt(text, file_name)
+        logger.info(f"Text saved in {file_name}")
         
     else:
-        logger.warning("Opción no válida.")
+        logger.warning("Invalid option.")

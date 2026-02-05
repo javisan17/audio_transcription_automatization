@@ -1,4 +1,4 @@
-"""Paquete para la interfaz gráfica de usuario."""
+"""Graphic User Interface Package."""
 
 from .gui_app import AudioTranscriptionGUI, main
 

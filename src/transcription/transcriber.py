@@ -1,6 +1,6 @@
 # src/transcription/transcriber.py
 
-"""Interfaz para el modelo de IA Whisper y procesamiento de resultados."""
+"""Interface for the Whisper AI model and result processing."""
 
 import threading
 
@@ -15,10 +15,10 @@ logger = get_logger(__name__)
 
 
 def transcribe_audio(audio_path: str, model: str = "small") -> str | None:
-    """Transcribe un archivo de audio usando Whisper.
+    """Transcribe an audio file using Whisper.
     
-    Soporta archivos wav, mp3, m4a, flac, ogg, mp4.
-    Retorna el texto transcrito o None si hay error.
+    Supports wav, mp3, m4a, flac, ogg, mp4 files.
+    Returns the transcribed text or None if there is an error.
     """
     result = [None]
 
@@ -29,40 +29,40 @@ def transcribe_audio(audio_path: str, model: str = "small") -> str | None:
 
             logger.info(f"Transcribiendo audio: {audio_path}")
 
-            # Intentar transcribir directamente con Whisper (soporta múltiples formatos)
+# Try to transcribe directly with Whisper (supports multiple formats)
             try:
                 result[0] = whisper_model.transcribe(
                     audio_path, language="es", verbose=False
                 )
                 text = result[0].get("text", "").strip()
                 if text:
-                    logger.info("Transcripción completada.")
+                    logger.info("Transcription completed.")
                     result[0] = text
                 else:
-                    logger.warning("No se detectó texto en el audio")
-                    result[0] = "No se detectó contenido de audio"
+                    logger.warning("No text detected in the audio")
+                    result[0] = "No audio content detected"
 
             except Exception as e:
-                logger.warning(f"Intento 1 falló: {e}")
-                logger.info("Intentando método alternativo...")
+                logger.warning(f"Attempt 1 failed: {e}")
+                logger.info("Trying alternative method...")
 
-                # Si falla, intentamos cargar el audio directamente con soundfile
+                # If it fails, we try to load the audio directly with soundfile
                 try:
                     audio_data, sr = sf.read(audio_path)
 
-                    # Convertir a float32
+                    # Convert to float32
                     audio_data = audio_data.astype(np.float32)
 
-                    # Convertir a mono si es estéreo
+                    # Convert to mono if stereo
                     if len(audio_data.shape) > 1:
                         audio_data = np.mean(audio_data, axis=1)
 
-                    # Normalizar si es necesario
+                    # Normalize if necessary
                     max_val = np.abs(audio_data).max()
                     if max_val > 1.0:
                         audio_data = audio_data / max_val
 
-                    # Resamplear a 16kHz si es necesario
+                    # Resample to 16kHz if necessary
                     if sr != 16000:
                         num_samples = int(len(audio_data) * 16000 / sr)
                         indices = np.linspace(0, len(audio_data) - 1, num_samples)
@@ -70,33 +70,33 @@ def transcribe_audio(audio_path: str, model: str = "small") -> str | None:
                             indices, np.arange(len(audio_data)), audio_data
                         )
 
-                    # Transcribir el audio en formato numpy
+                    #Transcribe the audio in numpy format
                     result[0] = whisper_model.transcribe(
                         audio_data, language="es", verbose=False
                     )
                     text = result[0].get("text", "").strip()
                     if text:
-                        logger.info("Transcripción completada (método alternativo).")
+                        logger.info("Transcription completed (alternative method).")
                         result[0] = text
                     else:
-                        logger.warning("No se detectó texto en el audio")
-                        result[0] = "No se detectó contenido de audio"
+                        logger.warning("No text detected in the audio")
+                        result[0] = "No audio content detected"
 
                 except Exception as e2:
-                    logger.error(f"Método alternativo también falló: {e2}")
+                    logger.error(f"Alternative method also failed:{e2}")
                     result[0] = None
 
         except Exception as e:
-            logger.exception(f"Error fatal al transcribir: {e}")
+            logger.exception(f"Fatal error when transcribing: {e}")
             result[0] = None
 
-    # Ejecutar con timeout
+    # Run with timeout
     thread = threading.Thread(target=transcribe_worker, daemon=True)
     thread.start()
     thread.join(timeout=300)  # 5 minutos timeout
 
     if thread.is_alive():
-        logger.error("Transcripción timeout excedido (5 minutos)")
+        logger.error("Transcription timeout exceeded (5 minutes)")
         return None
 
     return result[0]

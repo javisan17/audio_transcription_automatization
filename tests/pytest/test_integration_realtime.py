@@ -1,10 +1,10 @@
-"""Prueba de integración: flujo de grabación en tiempo real usando un audio generado.
+"""Integration test: real-time recording stream using generated audio.
 
-Esta prueba ejecuta `tests/audio/create_test_audio.py` en un directorio temporal para
-crear `test_audio.wav`, luego fuerza al flujo de "Opción 2" a usar ese archivo como
-si fuese audio grabado en tiempo real. Por seguridad y para que no se ejecute en
-cada corrida de CI, esta prueba se SKIP por defecto a menos que la variable de
-entorno `INTEGRATION_TESTS=1` esté presente.
+This test runs `tests/audio/create_test_audio.py` in a temporary directory to
+create `test_audio.wav`, then force the "Option 2" flow to use that file as
+if it were audio recorded in real time. For security and so that it does not run in
+each CI run, this test will SKIP by default unless the variable
+environment `INTEGRATION_TESTS=1` is present.
 """
 
 import builtins
@@ -34,9 +34,9 @@ def test_integration_realtime_with_generated_audio(monkeypatch, tmp_path):
     subprocess.run([sys.executable, script], cwd=str(tmp_path), check=True, env=env)
 
     audio_file = tmp_path / 'test_audio.wav'
-    assert audio_file.exists(), "El script no generó test_audio.wav"
+    assert audio_file.exists(), "The script did not generate test_audio.wav"
 
-    # Cargar el módulo option2 directamente (evitar problemas en __init__ del paquete)
+    # Load the option2 module directly (avoid problems in the package's __init__)
     option2_path = os.path.join(os.path.dirname(__file__),
                                 '..', 'src', 'options', 'option2.py')
     option2_path = os.path.abspath(option2_path)
@@ -45,14 +45,14 @@ def test_integration_realtime_with_generated_audio(monkeypatch, tmp_path):
     option2 = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(option2)
 
-    # Forzar que record_audio devuelva el archivo generado
+    # Force record_audio to return the generated file
     monkeypatch.setattr(option2, 'record_audio', lambda duration=30: str(audio_file))
 
-    # Simular entradas: duración (1) y opción de salida (1 = portapapeles)
+    # Simulate inputs: duration (1) and output option (1 = clipboard)
     responses = iter(['1', '1'])
     monkeypatch.setattr(builtins, 'input', lambda *a, **k: next(responses))
 
-    # Capturar lo que se copiaría al portapapeles
+    # Capture what would be copied to the clipboard
     captured = {}
 
     def fake_copy(text):
@@ -60,10 +60,10 @@ def test_integration_realtime_with_generated_audio(monkeypatch, tmp_path):
 
     monkeypatch.setattr(option2, 'copy_to_clipboard', fake_copy)
 
-    # Ejecutar la opción 2 (no mockear transcripción para hacer una prueba más real)
+    # Run option 2 (do not mock transcription to make a more real test)
     option2.opcion_2_grabar_y_transcribir()
 
-    # Verificar que se copió algo al portapapeles
-    assert 'text' in captured, 'No se copió ningún texto al portapapeles'
+    # Verify that something was copied to the clipboard
+    assert 'text' in captured, 'No text was copied to the clipboard'
     assert isinstance(captured['text'], str)
     assert len(captured['text']) > 0

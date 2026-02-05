@@ -1,4 +1,4 @@
-"""Tests para el recorder de audio."""
+"""Tests for the audio recorder."""
 
 import os
 import sys
@@ -12,21 +12,21 @@ from audio import recorder
 
 
 def test_record_audio_no_devices(monkeypatch):
-    """Prueba grabación cuando no hay dispositivos disponibles."""
+    """Test recording when no devices are available."""
     monkeypatch.setattr('audio.recorder.sd.query_devices', lambda: [])
     result = recorder.record_audio(duration=1)
     assert result is None
 
 
 def test_record_audio_success(monkeypatch, tmp_path):
-    """Prueba grabación exitosa de audio."""
-    # Simular dispositivos disponibles
+    """Test successful audio recording."""
+    # Simulate available devices
     monkeypatch.setattr('audio.recorder.sd.query_devices',
                         lambda: [{'max_input_channels': 1}])
 
     # Mockear sd.rec y sd.wait
     def fake_rec(count, samplerate, channels, dtype, device):
-        # Retornar un array con suficiente energía
+        # Return an array with enough energy
         return np.ones((int(1 * samplerate), channels), dtype=np.float32) * 0.1
 
     monkeypatch.setattr('audio.recorder.sd.rec', fake_rec)
@@ -39,9 +39,9 @@ def test_record_audio_success(monkeypatch, tmp_path):
 
 
 def test_audio_recorder_stop_creates_file(tmp_path):
-    """Prueba que stop_recording crea un archivo WAV."""
+    """Test that stop_recording creates a WAV file."""
     a = recorder.AudioRecorder()
-    # Simular que estuvo grabando
+    # Simulate that you were recording
     a.is_recording = True
     import numpy as np
     a.audio_data = [np.ones((10, 1),

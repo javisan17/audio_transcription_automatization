@@ -1,4 +1,4 @@
-"""Paquete encargado de la lógica de transcripción de voz a texto con Whisper."""
+"""Package responsible for speech-to-text transcription logic with Whisper."""
 
 from .transcriber import transcribe_audio
 

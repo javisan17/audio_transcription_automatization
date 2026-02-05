@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-"""Script para compilar la aplicación a ejecutable .exe usando PyInstaller.
+"""Script to compile the application to .exe executable using PyInstaller.
 
-Uso: python build_exe.py
-IMPORTANTE: Solo funciona en Windows.
+Usage: python build_exe.py
+IMPORTANT: Only works on Windows.
 """
 
 import platform
@@ -12,40 +12,42 @@ import subprocess
 import sys
 from pathlib import Path
 
-from logger import setup_logging, get_logger
+from logger import get_logger, setup_logging
+
+
 setup_logging()
 logger = get_logger(__name__)
 
 
 def main():
-    """Compila la aplicación a un ejecutable .exe usando PyInstaller."""
-    # Verificar que se ejecuta en Windows
+    """Compile the application to an .exe executable using PyInstaller."""
+    # Verify that it is running on Windows
     if platform.system() != "Windows":
-        logger.error("ERROR: Este script solo funciona en Windows")
-        logger.info(f"   Sistema detectado: {platform.system()}")
+        logger.error("BUG: This script only works on Windows")
+        logger.info(f"   System detected: {platform.system()}")
         return 1
 
-    # Compilar por consola por defecto (modo CLI). Pasar --windowed para ventana.
+    # Compile by default console (CLI mode). Pass --windowed for window.
     console_build = True
     if "--windowed" in sys.argv:
         console_build = False
 
-    root_dir = Path(__file__).parent
+    root_dir = Path(__file__).parent.parent
 
     logger.info("=" * 60)
-    logger.info("COMPILANDO EJECUTABLE - TRANSCRIPCIÓN DE AUDIO")
+    logger.info("COMPILING EXECUTABLE -AUDIO TRANSCRIPT")
     logger.info("=" * 60)
 
-    # Limpiar compilaciones anteriores
-    logger.info("\n[1/2] Limpiando compilaciones anteriores...")
+    # Clean up previous builds
+    logger.info("\n[1/2] Cleaning up previous builds..")
     for folder in [root_dir / "dist", root_dir / "build", root_dir / "__pycache__"]:
         if folder.exists():
             shutil.rmtree(folder)
-            logger.info(f"   Eliminado {folder.name}")
+            logger.info(f"   Deleted {folder.name}")
 
-    # Compilar con PyInstaller
-    logger.info("\n[2/2] Compilando con PyInstaller...")
-    logger.info("    (Esto puede tomar varios minutos)\n")
+    # Compile with PyInstaller
+    logger.info("\n[2/2] Compiling with PyInstaller...")
+    logger.info(" (This may take several minutes)\n")
 
     cmd = [
         sys.executable,
@@ -69,14 +71,14 @@ def main():
         "--hidden-import=tkinter",
     ]
 
-    # Ventana vs consola
+    # Window vs console
     if console_build:
         cmd.append("--console")
     else:
         cmd.append("--windowed")
 
-    # Usar ruta absoluta al script GUI (root_dir ya apunta a src)
-    cmd.append(str(root_dir / "gui" / "gui_app.py"))
+    # Use absolute path to GUI script
+    cmd.append(str(root_dir / "src" / "gui" / "gui_app.py"))
 
     result = subprocess.run(cmd, cwd=root_dir)
 
@@ -85,13 +87,13 @@ def main():
         if exe_path.exists():
             size_mb = exe_path.stat().st_size / (1024 * 1024)
             logger.info("\n" + "=" * 60)
-            logger.info(f"ÉXITO: {exe_path.name} creado")
-            logger.info(f"   Tamaño: {size_mb:.1f} MB")
-            logger.info(f"   Ubicación: {exe_path}")
+            logger.info(f"SUCCESS: {exe_path.name} created")
+            logger.info(f"   Size: {size_mb:.1f} MB")
+            logger.info(f"   Location: {exe_path}")
             logger.info("=" * 60)
             return 0
 
-    logger.error("\nError en la compilación")
+    logger.error("\nCompilation error")
     return 1
 
 

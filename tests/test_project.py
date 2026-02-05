@@ -1,4 +1,4 @@
-"""Script de prueba y verificar que funciones del proyecto funcionan correctamente."""
+"""Test script and verify which project functions work correctly."""
 
 import os
 import sys
@@ -8,13 +8,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 
 def test_imports():
-    """Prueba que todos los módulos se importan correctamente."""
-    # Verificar importaciones básicas sin excepciones
+    """Test that all modules are imported correctly."""
+    # Check basic imports without exceptions
 
 
 def test_loader(tmp_path):
-    """Prueba el cargador de audio con un archivo WAV temporal."""
-    # Crear un pequeño WAV de prueba
+    """Try the audio loader with a temporary WAV file."""
+    # Create a small test WAV
     import numpy as np
     import soundfile as sf
 
@@ -29,7 +29,7 @@ def test_loader(tmp_path):
 
 
 def test_output_clipboard(monkeypatch):
-    """Prueba guardado en portapapeles usando un mock."""
+    """Try saving to clipboard using a mock."""
     copied = {}
 
     def fake_copy(text):
@@ -39,13 +39,13 @@ def test_output_clipboard(monkeypatch):
 
     from output import copy_to_clipboard
 
-    texto_prueba = "Esto es una prueba de portapapeles"
+    texto_prueba = "This is a clipboard test"
     copy_to_clipboard(texto_prueba)
     assert copied.get("text") == texto_prueba
 
 
 def test_output_file(tmp_path):
-    """Prueba guardado en archivo."""
+    """Test saved in file."""
     from output import save_to_txt
 
     texto_prueba = """Esto es una prueba de archivo
@@ -60,17 +60,17 @@ def test_output_file(tmp_path):
 
 
 def test_transcriber(monkeypatch, tmp_path):
-    """Prueba de transcripción con un modelo mockeado."""
+    """Transcription test with a mocked model."""
     import numpy as np
 
-    # Crear archivo de audio temporal
+    # Create temporary audio file
     import soundfile as sf
 
     wav_path = tmp_path / "test_trans.wav"
     data = 0.1 * np.sin(2 * np.pi * 440 * np.linspace(0, 0.1, 1600))
     sf.write(str(wav_path), data, 16000)
 
-    # Mockear whisper.load_model y su método transcribe
+    # Mock whisper.load_model and its transcribe method
     class FakeModel:
         def transcribe(self, audio, language="es", verbose=False):
             return {"text": "hola mundo"}
@@ -85,41 +85,41 @@ def test_transcriber(monkeypatch, tmp_path):
 
 
 def main():
-    """Función principal para ejecutar todas las pruebas."""
+    """Run all tests."""
     import logging
     logger = logging.getLogger(__name__)
     logger.info("\n")
     logger.info("╔" + "=" * 58 + "╗")
-    logger.info("║" + " PRUEBAS DEL PROYECTO DE AUTOMATIZACIÓN DE AUDIO ".center(58) + "║")
+    logger.info("║" + " AUDIO AUTOMATION PROJECT TESTING ".center(58) + "║")
     logger.info("╚" + "=" * 58 + "╝")
 
     results = []
 
-    # Ejecutar pruebas
-    results.append(("Importaciones", test_imports()))
-    results.append(("Cargador de Audio", test_loader()))
-    results.append(("Portapapeles", test_output_clipboard()))
-    results.append(("Archivo de Salida", test_output_file()))
-    results.append(("Transcripción", test_transcriber()))
+    # Run tests
+    results.append(("Imports", test_imports()))
+    results.append(("Audio Charger", test_loader()))
+    results.append(("Clipboard", test_output_clipboard()))
+    results.append(("Output File", test_output_file()))
+    results.append(("Transcription", test_transcriber()))
 
-    # Resumen
+    # Summary
     logger.info("\n" + "=" * 60)
-    logger.info("RESUMEN DE PRUEBAS")
+    logger.info("SUMMARY OF TESTS")
     logger.info("=" * 60)
 
     for nombre, resultado in results:
-        estado = "✅ PASÓ" if resultado else "❌ FALLÓ"
+        estado = "✅ PASSED" if resultado else "❌ FAILED"
         logger.info(f"{nombre:<30} {estado}")
 
     passed = sum(1 for _, r in results if r)
     total = len(results)
 
-    logger.info(f"\nTotal: {passed}/{total} pruebas pasadas")
+    logger.info(f"\nTotal: {passed}/{total} tests passed")
 
     if passed == total:
-        logger.info("\n🎉 ¡TODAS LAS PRUEBAS PASARON!")
+        logger.info("\n🎉 ALL TESTS PASSED!")
     else:
-        logger.warning(f"\n⚠️  {total - passed} prueba(s) fallaron")
+        logger.warning(f"\n⚠️  {total - passed} test(s) failed")
 
 
 if __name__ == "__main__":

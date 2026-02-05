@@ -20,7 +20,7 @@ tools/
 logs/
 
 # Ruff files
-.ruff-cache/
+.ruff_cache/
 
 # Pytest files
 .pytest_cache/
