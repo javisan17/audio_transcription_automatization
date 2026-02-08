@@ -1,4 +1,4 @@
-"""Módulo principal para la automatización de audio."""
+"""Main module for audio automation."""
 
 from logger import get_logger, setup_logging
 from options import option_1_transcribe_file, option_2_record_and_transcribe

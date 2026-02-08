@@ -24,10 +24,10 @@ def transcribe_audio(audio_path: str, model: str = "small") -> str | None:
 
     def transcribe_worker():
         try:
-            logger.info(f"Cargando modelo Whisper ({model})...")
+            logger.info(f"Loading Whisper model ({model})...")
             whisper_model = whisper.load_model(model)
 
-            logger.info(f"Transcribiendo audio: {audio_path}")
+            logger.info(f"Transcribing audio: {audio_path}")
 
 # Try to transcribe directly with Whisper (supports multiple formats)
             try:
